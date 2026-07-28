@@ -1,0 +1,15 @@
+# Reference-template files retained only in the local working copy.
+/static/css/bulma*
+/static/css/fontawesome*
+/static/images/carousel*
+/static/images/favicon.ico
+/static/images/teaser.jpg
+/static/images/*_crop.png
+/static/js/bulma*
+/static/js/fontawesome*
+/static/pdfs/
+/static/videos/banner_video.mp4
+/static/videos/carousel*.mp4
+
+# Local media conversion log.
+/ffmpeg-video.log
