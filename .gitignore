@@ -13,3 +13,4 @@
 
 # Local media conversion log.
 /ffmpeg-video.log
+/node_modules/

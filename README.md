@@ -55,3 +55,19 @@ automatic playback. Keyboard users can operate the player, instructions, tabs, a
 
 The previous site used the Academic Project Page Template. The current design and
 interaction implementation are custom, with a video hero inspired by the supplied reference.
+
+## Interactive tool room
+
+The three tool tabs share a procedural indoor scene rendered locally with Three.js.
+Action selects a visible floor point and checks the entire route with robot clearance.
+Depth returns the camera-to-surface ray distance in metres, using the nearest visible
+surface. Recall selects a saved decision on the BEV and shows its captured camera image.
+Three sample decisions are seeded; new moves add observations (the latest 24 are kept).
+This is a clearly labelled illustration, not a navigation-model execution or experiment.
+
+Edit `src/tool-scene.js`, `src/scene-geometry.mjs`, and `static/css/tool-scene.css`.
+Run `npm ci`, `npm run test:scene`, `npm run build:scene`, then the Python site build.
+The bundled classic script and local license are mirrored to the anonymous site; no
+external JavaScript, model files, texture requests, or cross-origin module imports are used.
+Mouse, touch, arrow keys and Enter work in the camera view. Reduced motion skips travel
+animation. The room renders on interaction instead of running a permanent render loop.

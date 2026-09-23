@@ -18,7 +18,7 @@ TEMPLATE='''<!doctype html>
 <title>AgenticNav — Navigation through action, depth &amp; memory</title>
 <meta name="description" content="Zero-shot vision-and-language navigation as a tool-calling harness. Explore five real-world demonstrations and an interactive explanation of AgenticNav.">
 <meta name="theme-color" content="#14345b">__META__
-<link rel="stylesheet" href="static/css/index.css?v=20260923-3"><script defer src="static/js/index.js?v=20260923-3"></script></head>
+<link rel="stylesheet" href="static/css/index.css?v=20260923-tools-1"><link rel="stylesheet" href="static/css/tool-scene.css?v=20260923-tools-1"><script defer src="static/js/index.js?v=20260923-tools-1"></script><script defer src="static/js/tool-scene.js?v=20260923-tools-1"></script></head>
 <body><a class="skip-link" href="#demos">Skip to demonstrations</a>
 <header class="site-header"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><nav aria-label="Main navigation"><a href="#demos">Demos</a><a href="#idea">The idea</a><a href="#method">How it works</a><a href="#paper">Research</a></nav><a class="nav-cta" href="#demos">Explore <span aria-hidden="true">↗</span></a></header>
 <main><section class="hero" id="top"><video id="hero-video" muted loop playsinline preload="none" poster="static/images/web/hero.jpg" aria-label="Fast-forwarded real-world navigation highlights"><source data-src="static/videos/web/hero.mp4" type="video/mp4"></video><div class="hero-shade"></div>
@@ -74,7 +74,7 @@ def build():
         page=TEMPLATE
         for key,value in values.items(): page=page.replace('__'+key+'__',value)
         (dest/'index.html').write_text(page,encoding='utf-8')
-    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json']:
+    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
         (ANON/rel).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(SITE/rel,ANON/rel)
     for rel in ['static/images/web','static/videos/web']: shutil.copytree(SITE/rel,ANON/rel,dirs_exist_ok=True)
     print('Built public and anonymous sites with matching research content.')

@@ -213,27 +213,6 @@
   if (!reduced.matches && !navigator.connection?.saveData) { loadHero(); hero.play().catch(heroState); }
   new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else if (!heroUserPaused && !reduced.matches && !document.hidden && video.paused) { loadHero(); hero.play().catch(heroState); } }, {threshold:.12}).observe(hero);
 
-  const ideas = {
-    action: {kicker:'Action tool', title:'Choose beyond the predicted waypoints.', description:'A waypoint predictor limits the available choices. AgenticNav lets the model select a visible target pixel, then checks the resulting motion before execution.', button:'Show the selected pixel', result:'A target pixel becomes a motion request, subject to geometric safety checks.', visual:'<div class="idea-scene"><img src="static/images/web/action-scene.jpg" alt="Office floor from the paper, with candidate waypoints"><span class="scene-label">Action space</span><span class="waypoint one">1</span><span class="waypoint two">2</span><span class="waypoint three">3</span><span class="target-point"></span></div><div class="visual-caption"><span>Predicted candidates</span><strong>A directly selected pixel</strong></div>'},
-    depth: {kicker:'Depth tool', title:'Ask how far, exactly where it matters.', description:'The model queries depth at selected image pixels. Metric distances help resolve spatial relationships that are difficult to infer from appearance alone.', button:'Query the two points', result:'12.54 m and 7.68 m: metric evidence distinguishes the two desks.', visual:'<div class="idea-scene"><img src="static/images/web/depth-scene.jpg" alt="Two desks at different distances, from the paper"><span class="scene-label">Which desk is nearer?</span><span class="query-point"></span><span class="query-point second"></span><span class="depth-value">12.54 m</span><span class="depth-value second">7.68 m</span></div><div class="visual-caption"><span>Selected pixels</span><strong>On-demand metric evidence</strong></div>'},
-    recall: {kicker:'Compact memory + recall', title:'Keep the context small. Bring back the evidence.', description:'Recent reasoning and actions stay alongside a compact trajectory map. When an earlier view matters, the model selects a past decision point and retrieves that observation.', button:'Recall the past observation', result:'A selected memory returns visual evidence without carrying every image in the prompt.', visual:'<div class="memory-visual"><img src="static/images/web/memory-map.jpg" alt="Trajectory map with decision points"><span aria-hidden="true">→</span><div class="memory-frame"><img src="static/images/web/memory-view.jpg" alt="Past visual observation returned by recall"></div></div><div class="visual-caption"><span>Compact map + recent history</span><strong>Selective visual recall</strong></div>'}
-  };
-  let idea = 'action', revealed = false;
-  function setIdea(key) {
-    idea = key; revealed = false; const data = ideas[key];
-    $('#idea-visual').innerHTML = data.visual; $('#idea-visual').classList.remove('revealed');
-    $('#idea-kicker').textContent = data.kicker; $('#idea-title').textContent = data.title; $('#idea-description').textContent = data.description;
-    $('#idea-action').textContent = data.button + ' →'; $('#idea-result').textContent = '';
-    $('#idea-panel').setAttribute('aria-labelledby', 'tab-' + key);
-    $$('[data-idea]').forEach(b => { const selected = b.dataset.idea === key; b.setAttribute('aria-selected', selected); b.tabIndex = selected ? 0 : -1; });
-  }
-  $$('[data-idea]').forEach((b, index) => {
-    b.addEventListener('click', () => setIdea(b.dataset.idea));
-    b.addEventListener('keydown', e => { let next; if (e.key === 'ArrowRight') next = (index + 1) % 3; if (e.key === 'ArrowLeft') next = (index + 2) % 3; if (e.key === 'Home') next = 0; if (e.key === 'End') next = 2; if (next !== undefined) { e.preventDefault(); const tab = $$('[data-idea]')[next]; setIdea(tab.dataset.idea); tab.focus(); } });
-  });
-  $('#idea-action').addEventListener('click', () => { revealed = !revealed; $('#idea-visual').classList.toggle('revealed', revealed); $('#idea-result').textContent = revealed ? ideas[idea].result : ''; $('#idea-action').textContent = revealed ? 'Reset illustration ↺' : ideas[idea].button + ' →'; });
-  setIdea('action');
-
   const steps = [
     ['Start with the current observation.', 'The model receives the instruction, RGB views, a compact map, and recent reasoning and action history.'],
     ['Query the depth of selected pixels.', 'The depth tool returns metric distances at the requested image coordinates. The model uses this spatial evidence in its reasoning.'],
