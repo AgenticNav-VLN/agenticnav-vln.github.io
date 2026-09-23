@@ -1,0 +1,460 @@
+[
+  {
+    "id": "long-range",
+    "title": "From the lobby to the main gate",
+    "category": "Long-horizon navigation",
+    "src": "static/videos/web/long-range.mp4",
+    "poster": "static/images/web/long-range.jpg",
+    "duration": 74.0,
+    "originalDuration": 740.0,
+    "phrases": [
+      {
+        "text": "Turn left,",
+        "seek": 0.0
+      },
+      {
+        "text": "go straight through a door to the lobby,",
+        "seek": 6.6
+      },
+      {
+        "text": "and head outside through another door.",
+        "seek": 18.4
+      },
+      {
+        "text": "Continue forward",
+        "seek": 23.0
+      },
+      {
+        "text": "and turn left before reaching the next building.",
+        "seek": 36.2
+      },
+      {
+        "text": "Then, take a right onto the road,",
+        "seek": 45.8
+      },
+      {
+        "text": "keep going straight until you get to the main gate,",
+        "seek": 48.8
+      },
+      {
+        "text": "and stop there.",
+        "seek": 71.0
+      }
+    ],
+    "events": [
+      {
+        "phrase": 0,
+        "start": 0.0,
+        "end": 6.6
+      },
+      {
+        "phrase": 1,
+        "start": 6.6,
+        "end": 18.4
+      },
+      {
+        "phrase": 2,
+        "start": 18.4,
+        "end": 23.0
+      },
+      {
+        "phrase": 3,
+        "start": 23.0,
+        "end": 36.2
+      },
+      {
+        "phrase": 4,
+        "start": 36.2,
+        "end": 45.8
+      },
+      {
+        "phrase": 5,
+        "start": 45.8,
+        "end": 48.8
+      },
+      {
+        "phrase": 6,
+        "start": 48.8,
+        "end": 71.0
+      },
+      {
+        "phrase": 7,
+        "start": 71.0,
+        "end": 74.0
+      }
+    ],
+    "regions": []
+  },
+  {
+    "id": "building-22",
+    "title": "Read a sign. Remember the way.",
+    "category": "Visual memory",
+    "src": "static/videos/web/building-22.mp4",
+    "poster": "static/images/web/building-22.jpg",
+    "duration": 37.25,
+    "originalDuration": 372.5,
+    "phrases": [
+      {
+        "text": "Follow the",
+        "seek": 0
+      },
+      {
+        "text": "sign",
+        "seek": 5.5885973198
+      },
+      {
+        "text": "to find and stop at the door of",
+        "seek": 15.9
+      },
+      {
+        "text": "Building 22.",
+        "seek": 18
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 5.5885973198,
+        "end": 6.3271973198
+      },
+      {
+        "phrase": 1,
+        "start": 11.5,
+        "end": 15.9,
+        "color": "recall"
+      },
+      {
+        "phrase": 3,
+        "start": 18,
+        "end": 20.1
+      }
+    ],
+    "regions": [
+      {
+        "start": 18.0,
+        "end": 20.1,
+        "keyframes": [
+          {
+            "time": 18.0,
+            "x": 1350,
+            "y": 0,
+            "width": 120,
+            "height": 164
+          },
+          {
+            "time": 18.3,
+            "x": 1390,
+            "y": 10,
+            "width": 130,
+            "height": 200
+          },
+          {
+            "time": 18.6,
+            "x": 1316,
+            "y": 40,
+            "width": 140,
+            "height": 200
+          },
+          {
+            "time": 18.9,
+            "x": 1496,
+            "y": 36,
+            "width": 190,
+            "height": 210
+          },
+          {
+            "time": 19.2,
+            "x": 1540,
+            "y": 0,
+            "width": 210,
+            "height": 230
+          },
+          {
+            "time": 19.5,
+            "x": 1728,
+            "y": 4,
+            "width": 192,
+            "height": 264
+          },
+          {
+            "time": 19.8,
+            "x": 1752,
+            "y": 0,
+            "width": 168,
+            "height": 280
+          },
+          {
+            "time": 20.0,
+            "x": 1768,
+            "y": 24,
+            "width": 152,
+            "height": 270
+          },
+          {
+            "time": 20.1,
+            "x": 1774,
+            "y": 42,
+            "width": 146,
+            "height": 260
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kitchen",
+    "title": "Through the corridor to the kitchen",
+    "category": "Multi-step instruction",
+    "src": "static/videos/web/kitchen.mp4",
+    "poster": "static/images/web/kitchen.jpg",
+    "duration": 34.269999999999996,
+    "originalDuration": 342.7,
+    "phrases": [
+      {
+        "text": "Turn right,",
+        "seek": 0.0
+      },
+      {
+        "text": "go down the corridor,",
+        "seek": 4.38
+      },
+      {
+        "text": "and stop at the fridge in the kitchen.",
+        "seek": 32.07
+      }
+    ],
+    "events": [
+      {
+        "phrase": 0,
+        "start": 0.0,
+        "end": 4.38
+      },
+      {
+        "phrase": 1,
+        "start": 4.38,
+        "end": 32.07
+      },
+      {
+        "phrase": 2,
+        "start": 32.07,
+        "end": 34.269999999999996
+      }
+    ],
+    "regions": []
+  },
+  {
+    "id": "trash-bin",
+    "title": "Find the trash bin",
+    "category": "Object navigation",
+    "src": "static/videos/web/trash-bin.mp4",
+    "poster": "static/images/web/trash-bin.jpg",
+    "duration": 7.3333333,
+    "originalDuration": 73.333333,
+    "phrases": [
+      {
+        "text": "Find and stop at the",
+        "seek": 0
+      },
+      {
+        "text": "trash bin.",
+        "seek": 5.8
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 0,
+        "end": 7.3333333
+      }
+    ],
+    "regions": [
+      {
+        "start": 5.8,
+        "end": 7.3333333,
+        "keyframes": [
+          {
+            "time": 5.8,
+            "x": 1096,
+            "y": 480,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.0,
+            "x": 1112,
+            "y": 488,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.2,
+            "x": 1096,
+            "y": 480,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.4,
+            "x": 1016,
+            "y": 516,
+            "width": 110,
+            "height": 130
+          },
+          {
+            "time": 6.5,
+            "x": 974,
+            "y": 536,
+            "width": 102,
+            "height": 124
+          },
+          {
+            "time": 6.55,
+            "x": 986,
+            "y": 540,
+            "width": 124,
+            "height": 162
+          },
+          {
+            "time": 6.6,
+            "x": 1000,
+            "y": 510,
+            "width": 152,
+            "height": 198
+          },
+          {
+            "time": 6.65,
+            "x": 1028,
+            "y": 472,
+            "width": 226,
+            "height": 296
+          },
+          {
+            "time": 6.7,
+            "x": 1052,
+            "y": 452,
+            "width": 258,
+            "height": 350
+          },
+          {
+            "time": 6.8,
+            "x": 1136,
+            "y": 484,
+            "width": 264,
+            "height": 354
+          },
+          {
+            "time": 6.9,
+            "x": 1130,
+            "y": 484,
+            "width": 252,
+            "height": 354
+          },
+          {
+            "time": 7.0,
+            "x": 1132,
+            "y": 480,
+            "width": 250,
+            "height": 354
+          },
+          {
+            "time": 7.1,
+            "x": 1130,
+            "y": 480,
+            "width": 250,
+            "height": 354
+          },
+          {
+            "time": 7.2,
+            "x": 1144,
+            "y": 480,
+            "width": 250,
+            "height": 366
+          },
+          {
+            "time": 7.3,
+            "x": 1142,
+            "y": 524,
+            "width": 256,
+            "height": 338
+          },
+          {
+            "time": 7.3333333,
+            "x": 1150,
+            "y": 534,
+            "width": 256,
+            "height": 336
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table-tennis",
+    "title": "Find the table tennis table",
+    "category": "Object navigation",
+    "src": "static/videos/web/table-tennis.mp4",
+    "poster": "static/images/web/table-tennis.jpg",
+    "duration": 11.3533333,
+    "originalDuration": 113.533333,
+    "phrases": [
+      {
+        "text": "Find and stop at the",
+        "seek": 0
+      },
+      {
+        "text": "table tennis table.",
+        "seek": 9.52
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 0,
+        "end": 11.3533333
+      }
+    ],
+    "regions": [
+      {
+        "start": 9.52,
+        "end": 11.3533333,
+        "keyframes": [
+          {
+            "time": 9.52,
+            "x": 300,
+            "y": 102,
+            "width": 1236,
+            "height": 476
+          },
+          {
+            "time": 10.120000000000001,
+            "x": 308,
+            "y": 76,
+            "width": 1272,
+            "height": 502
+          },
+          {
+            "time": 10.52,
+            "x": 336,
+            "y": 66,
+            "width": 1274,
+            "height": 506
+          },
+          {
+            "time": 10.92,
+            "x": 348,
+            "y": 70,
+            "width": 1286,
+            "height": 520
+          },
+          {
+            "time": 11.3533333,
+            "x": 374,
+            "y": 72,
+            "width": 1270,
+            "height": 528
+          }
+        ]
+      }
+    ]
+  }
+]

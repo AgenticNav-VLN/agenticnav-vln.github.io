@@ -1,360 +1,495 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>AgenticNav | Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness</title>
-  <meta name="title" content="AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness">
-  <meta name="description" content="AgenticNav exposes action, depth, and memory as callable tools for zero-shot vision-and-language navigation in continuous environments.">
-  <meta name="keywords" content="AgenticNav, vision-and-language navigation, VLN-CE, embodied AI, tool calling, agentic memory, depth tool, action tool">
-  <meta name="author" content="Yijian Li, Changze Li, Hantian Shi, Jiaying Luo, Jiyuan Cai, Ming Yang, Tong Qin">
-  <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#070a12">
-  <link rel="canonical" href="https://agenticnav.github.io/">
-
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="AgenticNav">
-  <meta property="og:title" content="AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness">
-  <meta property="og:description" content="A lightweight navigation harness that exposes action, depth, and memory as callable tools.">
-  <meta property="og:url" content="https://agenticnav.github.io/">
-  <meta property="og:image" content="https://agenticnav.github.io/static/images/social-preview.png">
-  <meta property="og:image:alt" content="AgenticNav tool-call sequence from depth query to navigation action">
-  <meta property="article:published_time" content="2026-06-09T08:43:05Z">
-  <meta property="article:modified_time" content="2026-07-26T11:04:02Z">
-  <meta property="article:section" content="Robotics">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AgenticNav: Zero-Shot VLN as a Tool-Calling Harness">
-  <meta name="twitter:description" content="Pixel-level action, on-demand depth, and selective visual recall for zero-shot VLN-CE.">
-  <meta name="twitter:image" content="https://agenticnav.github.io/static/images/social-preview.png">
-  <meta name="twitter:image:alt" content="AgenticNav tool-call sequence from depth query to navigation action">
-
-  <meta name="citation_title" content="AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness">
-  <meta name="citation_author" content="Li, Yijian">
-  <meta name="citation_author" content="Li, Changze">
-  <meta name="citation_author" content="Shi, Hantian">
-  <meta name="citation_author" content="Luo, Jiaying">
-  <meta name="citation_author" content="Cai, Jiyuan">
-  <meta name="citation_author" content="Yang, Ming">
-  <meta name="citation_author" content="Qin, Tong">
-  <meta name="citation_publication_date" content="2026/06/09">
-  <meta name="citation_arxiv_id" content="2606.10577">
-  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2606.10577">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/css/index.css?v=20260728">
-  <script defer src="static/js/index.js?v=20260728"></script>
-
-  <script type="application/ld+json">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AgenticNav — Navigation through action, depth &amp; memory</title>
+<meta name="description" content="Zero-shot vision-and-language navigation as a tool-calling harness. Explore five real-world demonstrations and an interactive explanation of AgenticNav.">
+<meta name="theme-color" content="#14345b"><link rel="canonical" href="https://agenticnav-vln.github.io/">
+<link rel="stylesheet" href="static/css/index.css?v=20260923"><script defer src="static/js/index.js?v=20260923"></script></head>
+<body><a class="skip-link" href="#demos">Skip to demonstrations</a>
+<header class="site-header"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><nav aria-label="Main navigation"><a href="#demos">Demos</a><a href="#idea">The idea</a><a href="#method">How it works</a><a href="#paper">Research</a></nav><a class="nav-cta" href="#demos">Explore <span aria-hidden="true">↗</span></a></header>
+<main><section class="hero" id="top"><video id="hero-video" muted loop playsinline preload="none" poster="static/images/web/hero.jpg" aria-label="Fast-forwarded real-world navigation highlights"><source data-src="static/videos/web/hero.mp4" type="video/mp4"></video><div class="hero-shade"></div>
+<div class="hero-content"><p class="eyebrow hero-eyebrow">Vision. Language. Action.</p><h1>AgenticNav<span>.</span></h1><p class="hero-subtitle">Zero-Shot Vision-and-Language Navigation<br>as a Tool-Calling Harness</p><p class="authors">Yijian Li · Changze Li · Hantian Shi · Jiaying Luo<br>Jiyuan Cai · Ming Yang · Tong Qin</p><p class="affiliations">Shanghai Jiao Tong University · Yinwang Intelligent Technology</p>
+<div class="hero-actions"><a class="button button-white" href="#demos">See it navigate <span aria-hidden="true">↘</span></a><a class="button button-glass" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the paper ↗</a><a class="button button-glass" href="#method">Explore the method</a></div></div>
+<div class="hero-bottom"><p><span class="status-dot"></span>Real-world navigation <span class="hero-speed">10× playback</span></p><button id="hero-toggle" type="button" aria-label="Play background video">Play background <span aria-hidden="true">▶</span></button></div></section>
+<section class="lead container"><p>Follow the instruction.<br><span>Choose the tools.</span></p><div>AgenticNav connects a vision-language model to the world through three callable tools: act on a visible pixel, query a distance, or revisit a past observation. No navigation-policy training required.</div></section>
+<section class="demos-section container" id="demos"><div class="section-heading"><div><p class="eyebrow">On the robot</p><h2>From words to wayfinding.</h2></div><p>Five real-world runs. Click an instruction phrase to jump to that moment in the journey.</p></div>
+<div class="demo-layout"><div class="demo-picker" role="group" aria-label="Choose a demonstration"></div><article class="demo-stage" aria-labelledby="demo-title"><div class="demo-meta"><span id="demo-category"></span><span>Full experiment · 10× speed</span></div><h3 id="demo-title"></h3><div class="instruction-label"><span>Instruction</span><span>Click a phrase to seek <span aria-hidden="true">↗</span></span></div><div id="instruction" class="instruction" aria-label="Interactive navigation instruction"></div>
+<div class="player" id="player"><video id="demo-video" playsinline preload="none" aria-label="Selected navigation demonstration"></video><svg class="tracking-overlay" viewBox="0 0 1920 1080" aria-hidden="true"><rect id="tracking-box" hidden rx="12" fill="none" stroke="#3975e9" stroke-width="8"/></svg><div class="recall-overlay" hidden><p id="recall-title"></p><img src="static/images/web/remembered-sign.jpg" alt="Previously observed sign recalled by the navigation model"></div><button class="big-play" id="big-play" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><span class="video-badge">10×</span><div class="player-controls"><button id="play-toggle" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" step="0.01" value="0" aria-label="Video progress"><span id="duration">0:00</span><button id="fullscreen" aria-label="Enter fullscreen"><span aria-hidden="true">⛶</span></button></div></div>
+<div class="demo-footer"><p id="demo-status" role="status">Select a phrase or press play.</p><a id="video-download" href="static/videos/web/long-range.mp4" download>Open video <span aria-hidden="true">↗</span></a></div><p class="media-error" id="media-error" hidden>Video could not load. <button id="retry-video">Try again</button> or open the video directly.</p></article></div><noscript><p>Enable JavaScript to use the interactive player, or open the demonstrations directly:</p><p><a href="static/videos/web/long-range.mp4">Long-range navigation</a> · <a href="static/videos/web/building-22.mp4">Building 22</a> · <a href="static/videos/web/kitchen.mp4">Kitchen</a> · <a href="static/videos/web/trash-bin.mp4">Trash bin</a> · <a href="static/videos/web/table-tennis.mp4">Table tennis</a></p></noscript></section>
+<section class="idea-section" id="idea"><div class="container"><div class="section-heading"><div><p class="eyebrow">The idea</p><h2>Give the model<br>the right tools.</h2></div><p>More freedom to act. Precise spatial evidence. The right memory at the right time.</p></div>
+<div class="idea-tabs" role="tablist" aria-label="Explore the three tools"><button role="tab" id="tab-action" aria-selected="true" aria-controls="idea-panel" data-idea="action">Action <span>Choose a pixel</span></button><button role="tab" id="tab-depth" aria-selected="false" tabindex="-1" aria-controls="idea-panel" data-idea="depth">Depth <span>Ask for a distance</span></button><button role="tab" id="tab-recall" aria-selected="false" tabindex="-1" aria-controls="idea-panel" data-idea="recall">Memory <span>Recall what matters</span></button></div>
+<div id="idea-panel" class="idea-panel" role="tabpanel" aria-labelledby="tab-action"><div class="idea-visual" id="idea-visual"></div><div class="idea-explanation"><p class="eyebrow" id="idea-kicker"></p><h3 id="idea-title"></h3><p id="idea-description"></p><button class="text-button" id="idea-action">Show the action <span aria-hidden="true">→</span></button><p class="idea-result" id="idea-result" aria-live="polite"></p></div></div><a class="figure-link" href="static/images/web/paper-intro.png" target="_blank" rel="noopener">View the original introduction figure <span aria-hidden="true">↗</span></a></div></section>
+<section class="method-section container" id="method"><div class="section-heading"><div><p class="eyebrow">Inside AgenticNav</p><h2>Reason. Call. Observe.</h2></div><p>The model chooses which tool it needs. Follow one illustrative cycle, or select any stage to explore it.</p></div>
+<div class="method-controls" role="group" aria-label="Method walkthrough stages"><button data-step="0" aria-pressed="true">Observe</button><button data-step="1" aria-pressed="false">Query depth</button><button data-step="2" aria-pressed="false">Recall</button><button data-step="3" aria-pressed="false">Act</button><button data-step="4" aria-pressed="false">Update</button><button id="method-play" class="method-play">Play walkthrough <span aria-hidden="true">▶</span></button></div>
+<div class="method-diagram" data-step="0"><svg class="connections" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="currentColor"/></marker></defs><path data-connection="0" d="M220 260 H382"/><path data-connection="1" d="M540 195 V105 H720"/><path data-connection="2" d="M540 330 V420 H720"/><path data-connection="3" d="M615 260 H720"/><path data-connection="4" d="M840 310 V480 H130 V340"/></svg>
+<div class="diagram-node observation-node"><span class="node-label">Current observation</span><img src="static/images/web/observation.jpg" alt="Robot's current RGB camera observation" loading="lazy"><span class="node-caption">Instruction + RGB + map</span></div>
+<div class="diagram-node core-node"><span class="core-symbol" aria-hidden="true">✳</span><h3>Vision-language<br>model</h3><p>Reason over the task.<br>Choose the next tool.</p></div>
+<button class="diagram-node tool-node depth-node" data-node="1"><span class="node-label">Depth tool</span><strong>Query selected pixels</strong><span class="depth-points" aria-hidden="true"><i></i><i></i><i></i></span><span class="node-caption">Pixel coordinates → metric distance</span></button>
+<button class="diagram-node tool-node action-node" data-node="3"><span class="node-label">Action tool</span><strong>Select a target pixel</strong><span class="action-process">Safety check <span aria-hidden="true">→</span> Execute</span><span class="node-caption">Reselect if the motion is unsafe</span></button>
+<button class="diagram-node tool-node recall-node" data-node="2"><span class="node-label">Recall tool</span><strong>Revisit a past view</strong><span class="memory-strip"><img src="static/images/web/memory-map.jpg" alt="Compact trajectory map" loading="lazy"><span aria-hidden="true">→</span><img src="static/images/web/memory-view.jpg" alt="Retrieved past observation" loading="lazy"></span><span class="node-caption">Retrieve only the visual evidence needed</span></button></div>
+<div class="method-caption"><span id="method-count">01 / 05</span><div><h3 id="method-title">Start with the current observation.</h3><p id="method-description">The model receives the instruction, RGB views, a compact map, and recent reasoning and action history.</p></div><button id="method-next" class="text-button">Next step <span aria-hidden="true">→</span></button></div><a class="figure-link" href="static/images/web/paper-method.png" target="_blank" rel="noopener">View the original architecture figure <span aria-hidden="true">↗</span></a></section>
+<section class="research-section" id="paper"><div class="container research-grid"><div><p class="eyebrow">The research</p><h2>A navigation harness.<br>Zero-shot by design.</h2><p>AgenticNav exposes action, depth, and memory as callable tools for navigation in continuous environments. It lets the model request evidence where it matters, select visible targets directly, and retrieve observations without keeping every image in context.</p><a class="text-button" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the paper ↗</a></div><div class="research-results"><div><strong>76<span>%</span></strong><p>Success rate</p></div><div><strong>66.50<span>%</span></strong><p>Success weighted by path length</p></div><p class="result-context">R2R-CE validation unseen · shared 100-episode evaluation · Gemini-3.7-Flash. Values from the current manuscript.</p><details><summary>Read the abstract</summary><p>Zero-shot vision-and-language navigation in continuous environments (VLN-CE) has recently become feasible with large vision-language models (VLMs). Existing methods typically rely on learned waypoint predictors to propose navigable actions. This limits the model's action space and fails to leverage depth inputs effectively. Moreover, memory is commonly handled by accumulating long textual or visual histories, which overwhelms the prompt context. In this paper, we rethink zero-shot VLN-CE as an agentic interface between the VLM and the environment, and present AgenticNav, a lightweight navigation harness that exposes action, depth, and memory as callable tools. Instead of choosing from predicted waypoints, the action tool allows the VLM to directly select a target pixel in RGB observations, converting it into executable motion. Depth is exposed through an on-demand pixel-depth tool, enabling the VLM to request precise metric distances only where they matter. For memory, AgenticNav uses an agentic memory architecture combining reasoning text history and a compact map image, paired with a recall tool that allows the VLM to selectively revisit past visual observations. On R2R-CE, AgenticNav achieves state-of-the-art (SOTA) zero-shot performance under same VLM comparison, reaching 76% success rate and 66.50% SPL. Ablation experiments validate the effectiveness of our tool and memory designs, while backbone evaluations demonstrate more consistent navigation gains as VLMs improve, highlighting the harness's potential to benefit from future VLM advances. Real-world experiments on two distinct robotic platforms further demonstrate its zero-shot generalization and adaptability.</p></details></div></div></section>
+<section class="citation container"><details><summary>Cite this work</summary><pre>@article{li2026agenticnav,
+  title={AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness},
+  author={Li, Yijian and Li, Changze and Shi, Hantian and Luo, Jiaying and Cai, Jiyuan and Yang, Ming and Qin, Tong},
+  journal={arXiv preprint arXiv:2606.10577},
+  year={2026}
+}</pre></details></section></main><footer class="container"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><p>Vision-and-language navigation · 2026</p><a href="#top">Back to top ↑</a></footer><script type="application/json" id="demo-data">[
   {
-    "@context": "https://schema.org",
-    "@type": "ScholarlyArticle",
-    "headline": "AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness",
-    "description": "AgenticNav is a lightweight zero-shot VLN-CE harness that exposes action, depth, and memory as callable tools.",
-    "author": [
-      {"@type": "Person", "name": "Yijian Li"},
-      {"@type": "Person", "name": "Changze Li"},
-      {"@type": "Person", "name": "Hantian Shi"},
-      {"@type": "Person", "name": "Jiaying Luo"},
-      {"@type": "Person", "name": "Jiyuan Cai"},
-      {"@type": "Person", "name": "Ming Yang"},
-      {"@type": "Person", "name": "Tong Qin"}
+    "id": "long-range",
+    "title": "From the lobby to the main gate",
+    "category": "Long-horizon navigation",
+    "src": "static/videos/web/long-range.mp4",
+    "poster": "static/images/web/long-range.jpg",
+    "duration": 74.0,
+    "originalDuration": 740.0,
+    "phrases": [
+      {
+        "text": "Turn left,",
+        "seek": 0.0
+      },
+      {
+        "text": "go straight through a door to the lobby,",
+        "seek": 6.6
+      },
+      {
+        "text": "and head outside through another door.",
+        "seek": 18.4
+      },
+      {
+        "text": "Continue forward",
+        "seek": 23.0
+      },
+      {
+        "text": "and turn left before reaching the next building.",
+        "seek": 36.2
+      },
+      {
+        "text": "Then, take a right onto the road,",
+        "seek": 45.8
+      },
+      {
+        "text": "keep going straight until you get to the main gate,",
+        "seek": 48.8
+      },
+      {
+        "text": "and stop there.",
+        "seek": 71.0
+      }
     ],
-    "datePublished": "2026-06-09",
-    "dateModified": "2026-07-26",
-    "url": "https://arxiv.org/abs/2606.10577",
-    "sameAs": "https://doi.org/10.48550/arXiv.2606.10577",
-    "image": "https://agenticnav.github.io/static/images/social-preview.png",
-    "keywords": ["Vision-and-Language Navigation", "Embodied AI", "Tool Calling", "Agentic Memory", "Zero-Shot Navigation"],
-    "isAccessibleForFree": true
+    "events": [
+      {
+        "phrase": 0,
+        "start": 0.0,
+        "end": 6.6
+      },
+      {
+        "phrase": 1,
+        "start": 6.6,
+        "end": 18.4
+      },
+      {
+        "phrase": 2,
+        "start": 18.4,
+        "end": 23.0
+      },
+      {
+        "phrase": 3,
+        "start": 23.0,
+        "end": 36.2
+      },
+      {
+        "phrase": 4,
+        "start": 36.2,
+        "end": 45.8
+      },
+      {
+        "phrase": 5,
+        "start": 45.8,
+        "end": 48.8
+      },
+      {
+        "phrase": 6,
+        "start": 48.8,
+        "end": 71.0
+      },
+      {
+        "phrase": 7,
+        "start": 71.0,
+        "end": 74.0
+      }
+    ],
+    "regions": []
+  },
+  {
+    "id": "building-22",
+    "title": "Read a sign. Remember the way.",
+    "category": "Visual memory",
+    "src": "static/videos/web/building-22.mp4",
+    "poster": "static/images/web/building-22.jpg",
+    "duration": 37.25,
+    "originalDuration": 372.5,
+    "phrases": [
+      {
+        "text": "Follow the",
+        "seek": 0
+      },
+      {
+        "text": "sign",
+        "seek": 5.5885973198
+      },
+      {
+        "text": "to find and stop at the door of",
+        "seek": 15.9
+      },
+      {
+        "text": "Building 22.",
+        "seek": 18
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 5.5885973198,
+        "end": 6.3271973198
+      },
+      {
+        "phrase": 1,
+        "start": 11.5,
+        "end": 15.9,
+        "color": "recall"
+      },
+      {
+        "phrase": 3,
+        "start": 18,
+        "end": 20.1
+      }
+    ],
+    "regions": [
+      {
+        "start": 18.0,
+        "end": 20.1,
+        "keyframes": [
+          {
+            "time": 18.0,
+            "x": 1350,
+            "y": 0,
+            "width": 120,
+            "height": 164
+          },
+          {
+            "time": 18.3,
+            "x": 1390,
+            "y": 10,
+            "width": 130,
+            "height": 200
+          },
+          {
+            "time": 18.6,
+            "x": 1316,
+            "y": 40,
+            "width": 140,
+            "height": 200
+          },
+          {
+            "time": 18.9,
+            "x": 1496,
+            "y": 36,
+            "width": 190,
+            "height": 210
+          },
+          {
+            "time": 19.2,
+            "x": 1540,
+            "y": 0,
+            "width": 210,
+            "height": 230
+          },
+          {
+            "time": 19.5,
+            "x": 1728,
+            "y": 4,
+            "width": 192,
+            "height": 264
+          },
+          {
+            "time": 19.8,
+            "x": 1752,
+            "y": 0,
+            "width": 168,
+            "height": 280
+          },
+          {
+            "time": 20.0,
+            "x": 1768,
+            "y": 24,
+            "width": 152,
+            "height": 270
+          },
+          {
+            "time": 20.1,
+            "x": 1774,
+            "y": 42,
+            "width": 146,
+            "height": 260
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kitchen",
+    "title": "Through the corridor to the kitchen",
+    "category": "Multi-step instruction",
+    "src": "static/videos/web/kitchen.mp4",
+    "poster": "static/images/web/kitchen.jpg",
+    "duration": 34.269999999999996,
+    "originalDuration": 342.7,
+    "phrases": [
+      {
+        "text": "Turn right,",
+        "seek": 0.0
+      },
+      {
+        "text": "go down the corridor,",
+        "seek": 4.38
+      },
+      {
+        "text": "and stop at the fridge in the kitchen.",
+        "seek": 32.07
+      }
+    ],
+    "events": [
+      {
+        "phrase": 0,
+        "start": 0.0,
+        "end": 4.38
+      },
+      {
+        "phrase": 1,
+        "start": 4.38,
+        "end": 32.07
+      },
+      {
+        "phrase": 2,
+        "start": 32.07,
+        "end": 34.269999999999996
+      }
+    ],
+    "regions": []
+  },
+  {
+    "id": "trash-bin",
+    "title": "Find the trash bin",
+    "category": "Object navigation",
+    "src": "static/videos/web/trash-bin.mp4",
+    "poster": "static/images/web/trash-bin.jpg",
+    "duration": 7.3333333,
+    "originalDuration": 73.333333,
+    "phrases": [
+      {
+        "text": "Find and stop at the",
+        "seek": 0
+      },
+      {
+        "text": "trash bin.",
+        "seek": 5.8
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 0,
+        "end": 7.3333333
+      }
+    ],
+    "regions": [
+      {
+        "start": 5.8,
+        "end": 7.3333333,
+        "keyframes": [
+          {
+            "time": 5.8,
+            "x": 1096,
+            "y": 480,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.0,
+            "x": 1112,
+            "y": 488,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.2,
+            "x": 1096,
+            "y": 480,
+            "width": 104,
+            "height": 130
+          },
+          {
+            "time": 6.4,
+            "x": 1016,
+            "y": 516,
+            "width": 110,
+            "height": 130
+          },
+          {
+            "time": 6.5,
+            "x": 974,
+            "y": 536,
+            "width": 102,
+            "height": 124
+          },
+          {
+            "time": 6.55,
+            "x": 986,
+            "y": 540,
+            "width": 124,
+            "height": 162
+          },
+          {
+            "time": 6.6,
+            "x": 1000,
+            "y": 510,
+            "width": 152,
+            "height": 198
+          },
+          {
+            "time": 6.65,
+            "x": 1028,
+            "y": 472,
+            "width": 226,
+            "height": 296
+          },
+          {
+            "time": 6.7,
+            "x": 1052,
+            "y": 452,
+            "width": 258,
+            "height": 350
+          },
+          {
+            "time": 6.8,
+            "x": 1136,
+            "y": 484,
+            "width": 264,
+            "height": 354
+          },
+          {
+            "time": 6.9,
+            "x": 1130,
+            "y": 484,
+            "width": 252,
+            "height": 354
+          },
+          {
+            "time": 7.0,
+            "x": 1132,
+            "y": 480,
+            "width": 250,
+            "height": 354
+          },
+          {
+            "time": 7.1,
+            "x": 1130,
+            "y": 480,
+            "width": 250,
+            "height": 354
+          },
+          {
+            "time": 7.2,
+            "x": 1144,
+            "y": 480,
+            "width": 250,
+            "height": 366
+          },
+          {
+            "time": 7.3,
+            "x": 1142,
+            "y": 524,
+            "width": 256,
+            "height": 338
+          },
+          {
+            "time": 7.3333333,
+            "x": 1150,
+            "y": 534,
+            "width": 256,
+            "height": 336
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table-tennis",
+    "title": "Find the table tennis table",
+    "category": "Object navigation",
+    "src": "static/videos/web/table-tennis.mp4",
+    "poster": "static/images/web/table-tennis.jpg",
+    "duration": 11.3533333,
+    "originalDuration": 113.533333,
+    "phrases": [
+      {
+        "text": "Find and stop at the",
+        "seek": 0
+      },
+      {
+        "text": "table tennis table.",
+        "seek": 9.52
+      }
+    ],
+    "events": [
+      {
+        "phrase": 1,
+        "start": 0,
+        "end": 11.3533333
+      }
+    ],
+    "regions": [
+      {
+        "start": 9.52,
+        "end": 11.3533333,
+        "keyframes": [
+          {
+            "time": 9.52,
+            "x": 300,
+            "y": 102,
+            "width": 1236,
+            "height": 476
+          },
+          {
+            "time": 10.120000000000001,
+            "x": 308,
+            "y": 76,
+            "width": 1272,
+            "height": 502
+          },
+          {
+            "time": 10.52,
+            "x": 336,
+            "y": 66,
+            "width": 1274,
+            "height": 506
+          },
+          {
+            "time": 10.92,
+            "x": 348,
+            "y": 70,
+            "width": 1286,
+            "height": 520
+          },
+          {
+            "time": 11.3533333,
+            "x": 374,
+            "y": 72,
+            "width": 1270,
+            "height": 528
+          }
+        ]
+      }
+    ]
   }
-  </script>
-</head>
-
-<body>
-  <a class="skip-link" href="#main-content">Skip to content</a>
-
-  <header class="site-header">
-    <a class="wordmark" href="#top" aria-label="AgenticNav home">
-      <span class="wordmark-mark" aria-hidden="true">A</span>
-      <span>AgenticNav</span>
-    </a>
-    <nav class="site-nav" aria-label="Page sections">
-      <a href="#video">Video</a>
-      <a href="#method">Method</a>
-      <a href="#results">Results</a>
-      <a href="#bibtex">BibTeX</a>
-    </nav>
-  </header>
-
-  <aside class="more-works">
-    <button class="more-works-button" type="button" aria-expanded="false" aria-controls="more-works-panel">
-      More work <span aria-hidden="true">↗</span>
-    </button>
-    <div class="more-works-panel" id="more-works-panel" hidden>
-      <span class="utility-label">Related project</span>
-      <a href="https://vln-avp.github.io/" target="_blank" rel="noopener noreferrer">
-        <strong>VLN-AVP</strong>
-        <span>Zero-shot navigation for autonomous valet parking</span>
-      </a>
-    </div>
-  </aside>
-
-  <main id="main-content">
-    <section class="hero" id="top">
-      <div class="ambient ambient-one" aria-hidden="true"></div>
-      <div class="ambient ambient-two" aria-hidden="true"></div>
-      <div class="container hero-inner">
-        <div class="hero-meta">
-          <span class="version-label">arXiv v2 · 26 Jul 2026</span>
-        </div>
-
-        <h1>
-          <span class="title-name">AgenticNav</span>
-          <span class="title-subtitle">Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness</span>
-        </h1>
-
-        <div class="authors" aria-label="Authors">
-          <span>Yijian Li<sup>1</sup></span>
-          <span>Changze Li<sup>1</sup></span>
-          <span>Hantian Shi<sup>1</sup></span>
-          <span>Jiaying Luo<sup>1</sup></span>
-          <span>Jiyuan Cai<sup>2</sup></span>
-          <span>Ming Yang<sup>1</sup></span>
-          <span>Tong Qin<sup>1,*</sup></span>
-        </div>
-        <p class="affiliations">
-          <span><sup>1</sup>Shanghai Jiao Tong University</span>
-          <span><sup>2</sup>Yinwang Intelligent Technology Co., Ltd.</span>
-          <span><sup>*</sup>Corresponding author</span>
-        </p>
-
-        <div class="hero-actions">
-          <a class="button button-primary" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener noreferrer">
-            <span class="button-code">[PDF]</span> Paper
-          </a>
-          <span class="button button-muted" aria-disabled="true" title="Code coming soon">
-            <span class="button-code">&lt;/&gt;</span> Code soon
-          </span>
-          <a class="button button-secondary" href="#video">
-            <span class="button-code">▶</span> Video
-          </a>
-        </div>
-
-        <div class="tool-rail" aria-label="AgenticNav tool call sequence">
-          <div class="tool-node tool-depth">
-            <span class="tool-index">01</span>
-            <code>query_depth</code>
-            <small>inspect metric evidence</small>
-          </div>
-          <span class="tool-connector" aria-hidden="true">→</span>
-          <div class="tool-node tool-recall">
-            <span class="tool-index">02</span>
-            <code>recall</code>
-            <small>retrieve only what matters</small>
-          </div>
-          <span class="tool-connector" aria-hidden="true">→</span>
-          <div class="tool-node tool-action">
-            <span class="tool-index">03</span>
-            <code>move_to</code>
-            <small>select any visible pixel</small>
-          </div>
-          <span class="tool-connector" aria-hidden="true">→</span>
-          <div class="tool-node tool-stop">
-            <span class="tool-index">04</span>
-            <code>stop</code>
-            <small>finish at the goal</small>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="teaser-section">
-      <div class="container wide-container">
-        <figure class="figure-shell">
-          <img src="static/images/intro.webp" alt="Comparison between waypoint-based VLN-CE and AgenticNav's action, depth, and memory tools" width="3600" height="1160">
-          <figcaption>
-            AgenticNav reformulates zero-shot VLN-CE as a tool-calling interface that gives the VLM direct, selective access to action, depth, and memory.
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="section" id="video">
-      <div class="container">
-        <div class="section-heading">
-          <span class="utility-label">Paper walkthrough</span>
-          <h2>See the complete system in motion.</h2>
-        </div>
-        <div class="video-shell">
-          <video controls playsinline preload="metadata" poster="static/images/intro.webp">
-              <source src="static/videos/agenticnav-project-video.mp4" type="video/mp4">
-            Your browser does not support embedded video.
-          </video>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-panel" id="abstract">
-      <div class="container prose-layout">
-        <div class="section-heading">
-          <span class="utility-label">Abstract</span>
-          <h2>A better harness for zero-shot navigation.</h2>
-        </div>
-        <div class="abstract-copy">
-          <p>
-            Zero-shot vision-and-language navigation in continuous environments (VLN-CE) has recently become feasible with large vision-language models (VLMs). However, existing methods typically rely on learned waypoint predictors to propose navigable actions. This severely limits the model's action space and fails to leverage depth inputs effectively. Moreover, memory is commonly handled by accumulating long textual or visual histories with substantial irrelevant context, or by retrieving cross-episode experiences, which weakens the zero-shot setting.
-          </p>
-          <p>
-            We present <strong>AgenticNav</strong>, a lightweight navigation harness that exposes action, depth, and memory as callable tools. The action tool lets the VLM select a target pixel directly; the depth tool returns precise metric evidence only where needed; and agentic memory pairs a compact trajectory map with selective visual recall. AgenticNav establishes new state-of-the-art performance among zero-shot methods on R2R-CE under same-backbone comparisons, while real-world experiments demonstrate strong zero-shot generalization.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="method">
-      <div class="container">
-        <div class="section-heading heading-centered">
-          <span class="utility-label">Method</span>
-          <h2>Reason broadly. Query precisely. Move directly.</h2>
-          <p>The VLM decides what evidence it needs; deterministic tools handle geometry, memory retrieval, and safety.</p>
-        </div>
-
-        <div class="capability-grid">
-          <article class="capability-card capability-depth">
-            <span class="capability-command">query_depth(points)</span>
-            <h3>On-demand depth</h3>
-            <p>Request metric depth and a motion preview at selected pixels instead of parsing a dense depth map.</p>
-          </article>
-          <article class="capability-card capability-memory">
-            <span class="capability-command">recall(node, view)</span>
-            <h3>Selective memory</h3>
-            <p>Keep a compact trajectory map in context and retrieve past views only when they become relevant.</p>
-          </article>
-          <article class="capability-card capability-action">
-            <span class="capability-command">move_to(view, u, v)</span>
-            <h3>Pixel-level action</h3>
-            <p>Choose any visible target point, then convert it into safe, executable continuous motion.</p>
-          </article>
-        </div>
-
-        <figure class="figure-shell method-figure">
-          <img src="static/images/method.webp" alt="AgenticNav architecture showing the depth tool, VLM core, action tool, and agentic memory" width="2400" height="1350" loading="lazy">
-          <figcaption>
-            The VLM queries depth, optionally recalls a past node image, and commits to an action. Safety checking triggers either reselect or execute.
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="section section-panel" id="results">
-      <div class="container">
-        <div class="section-heading">
-          <span class="utility-label">Results</span>
-          <h2>The harness changes the outcome.</h2>
-        </div>
-
-        <div class="metrics-grid">
-          <article class="metric-card">
-            <span class="metric-value">55<span>%</span></span>
-            <h3>Success rate</h3>
-            <p>Best zero-shot SR on the shared 100-episode R2R-CE val_unseen protocol with GPT-5.5.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">48.41</span>
-            <h3>SPL</h3>
-            <p>Higher path efficiency without a trained waypoint predictor.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">+11<span>pt</span></span>
-            <h3>Same-backbone SR</h3>
-            <p>Improvement over the SmartWay-GPT-5.5 reproduction, from 44% to 55%.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-value">46.7<span>%</span></span>
-            <h3>Real-world SR</h3>
-            <p>Four-view AgenticNav doubles the SmartWay baseline across 30 real-world episodes.</p>
-          </article>
-        </div>
-
-        <p class="results-note">
-          All values and comparison conditions are taken from the latest arXiv manuscript. See the paper for the complete tables, metrics, and protocol details.
-        </p>
-      </div>
-    </section>
-
-    <section class="section" id="demonstrations">
-      <div class="container wide-container">
-        <div class="section-heading heading-centered">
-          <span class="utility-label">Tool-use demonstrations</span>
-          <h2>Three calls, three navigation bottlenecks removed.</h2>
-        </div>
-
-        <div class="figure-carousel" tabindex="0" aria-roledescription="carousel" aria-label="AgenticNav tool demonstrations">
-          <div class="carousel-viewport">
-            <figure class="carousel-slide is-active" data-slide="0">
-              <img src="static/images/action-tool.webp" alt="Action Tool demonstration comparing direct pixel selection with a waypoint predictor" width="3600" height="858" loading="lazy">
-              <figcaption><strong>Action Tool.</strong> Direct pixel selection bypasses waypoint constraints and preserves goal-aligned actions.</figcaption>
-            </figure>
-            <figure class="carousel-slide" data-slide="1" hidden>
-              <img src="static/images/depth-tool.webp" alt="Depth Tool demonstration using pixel depth queries to time a turn" width="3600" height="767" loading="lazy">
-              <figcaption><strong>Depth Tool.</strong> Precise local depth evidence helps the VLM decide when to continue and when to turn.</figcaption>
-            </figure>
-            <figure class="carousel-slide" data-slide="2" hidden>
-              <img src="static/images/recall-tool.webp" alt="Recall Tool demonstration using a past sign observation for long-horizon navigation" width="1995" height="430" loading="lazy">
-              <figcaption><strong>Recall Tool.</strong> A one-time sign reading becomes a persistent route constraint without a growing frame history.</figcaption>
-            </figure>
-          </div>
-
-          <div class="carousel-controls">
-            <button class="carousel-arrow" type="button" data-direction="-1" aria-label="Previous demonstration">←</button>
-            <div class="carousel-dots" role="tablist" aria-label="Choose demonstration">
-              <button class="carousel-dot is-active" type="button" data-target="0" role="tab" aria-selected="true" aria-label="Action Tool"></button>
-              <button class="carousel-dot" type="button" data-target="1" role="tab" aria-selected="false" aria-label="Depth Tool"></button>
-              <button class="carousel-dot" type="button" data-target="2" role="tab" aria-selected="false" aria-label="Recall Tool"></button>
-            </div>
-            <button class="carousel-arrow" type="button" data-direction="1" aria-label="Next demonstration">→</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-panel" id="bibtex">
-      <div class="container">
-        <div class="bibtex-heading">
-          <div class="section-heading">
-            <span class="utility-label">Citation</span>
-            <h2>BibTeX</h2>
-          </div>
-          <button class="copy-button" type="button" data-copy-bibtex>
-            <span class="copy-state">Copy citation</span>
-          </button>
-        </div>
-        <pre><code id="bibtex-code">@article{li2026agenticnav,
-  title   = {AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness},
-  author  = {Li, Yijian and Li, Changze and Shi, Hantian and Luo, Jiaying and Cai, Jiyuan and Yang, Ming and Qin, Tong},
-  journal = {arXiv preprint arXiv:2606.10577},
-  year    = {2026}
-}</code></pre>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <p>AgenticNav · Zero-shot VLN-CE as tool calling.</p>
-      <p>
-        <a href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener noreferrer">arXiv:2606.10577</a>
-        <span aria-hidden="true">·</span>
-        Page structure adapted from the
-        <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener noreferrer">Academic Project Page Template</a>.
-      </p>
-    </div>
-  </footer>
-
-  <button class="scroll-top" type="button" aria-label="Scroll to top">↑</button>
-</body>
-</html>
+]</script></body></html>
