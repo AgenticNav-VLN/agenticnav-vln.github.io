@@ -18,7 +18,7 @@ TEMPLATE='''<!doctype html>
 <title>AgenticNav — Navigation through action, depth &amp; memory</title>
 <meta name="description" content="Zero-shot vision-and-language navigation as a tool-calling harness. Explore five real-world demonstrations and an interactive explanation of AgenticNav.">
 <meta name="theme-color" content="#14345b">__META__
-<link rel="stylesheet" href="static/css/index.css?v=20260923-2"><script defer src="static/js/index.js?v=20260923-2"></script></head>
+<link rel="stylesheet" href="static/css/index.css?v=20260923-3"><script defer src="static/js/index.js?v=20260923-3"></script></head>
 <body><a class="skip-link" href="#demos">Skip to demonstrations</a>
 <header class="site-header"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><nav aria-label="Main navigation"><a href="#demos">Demos</a><a href="#idea">The idea</a><a href="#method">How it works</a><a href="#paper">Research</a></nav><a class="nav-cta" href="#demos">Explore <span aria-hidden="true">↗</span></a></header>
 <main><section class="hero" id="top"><video id="hero-video" muted loop playsinline preload="none" poster="static/images/web/hero.jpg" aria-label="Fast-forwarded real-world navigation highlights"><source data-src="static/videos/web/hero.mp4" type="video/mp4"></video><div class="hero-shade"></div>
@@ -54,8 +54,13 @@ def build():
     # A classic script is an allowed transport for a user-requested local MP4.
     for demo in json.loads(data):
         media=SITE/demo['src']
-        payload={'id':demo['id'],'data':base64.b64encode(media.read_bytes()).decode('ascii')}
-        media.with_suffix('.media.js').write_text('window.dispatchEvent(new CustomEvent("agenticnav-media",{detail:'+json.dumps(payload,separators=(',',':'))+'}));\n',encoding='utf-8')
+        raw=media.read_bytes(); size=1572864
+        chunks=[raw[i:i+size] for i in range(0,len(raw),size)]
+        def write_transport(path,payload):
+            path.write_text('window.dispatchEvent(new CustomEvent("agenticnav-media",{detail:'+json.dumps(payload,separators=(',',':'))+'}));\n',encoding='utf-8')
+        write_transport(media.with_suffix('.media.js'),{'id':demo['id'],'chunks':len(chunks)})
+        for i,chunk in enumerate(chunks):
+            write_transport(media.with_suffix(f'.media-{i}.js'),{'id':demo['id'],'index':i,'data':base64.b64encode(chunk).decode('ascii')})
     for anonymous,dest in [(False,SITE),(True,ANON)]:
         values={
           'META':'<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">' if anonymous else '<link rel="canonical" href="https://agenticnav-vln.github.io/">',

@@ -43,25 +43,41 @@
     // are allowed there, while fetch is blocked. Carry the same MP4 bytes through
     // an on-demand script, then play a Blob without contacting another host.
     return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      const cleanup = () => { window.removeEventListener('agenticnav-media', receive); signal.removeEventListener('abort', abort); script.remove(); };
+      const scripts = new Set(), parts = [];
+      let total = 0, next = 0, received = 0;
+      const cleanup = () => { clearTimeout(timeout); window.removeEventListener('agenticnav-media', receive); signal.removeEventListener('abort', abort); scripts.forEach(script => script.remove()); };
+      const fail = () => { cleanup(); reject(new Error('Video could not load')); };
       const abort = () => { cleanup(); reject(new DOMException('Aborted', 'AbortError')); };
+      const append = suffix => {
+        const script = document.createElement('script'); scripts.add(script);
+        script.onerror = fail;
+        script.onload = () => { scripts.delete(script); script.remove(); };
+        script.src = selected.src.replace(/\.mp4$/, suffix); script.async = true;
+        document.head.append(script);
+      };
+      const queue = () => { if (next < total) append(`.media-${next++}.js`); };
       const receive = event => {
         if (event.detail?.id !== selected.id || signal.aborted) return;
         try {
-          const encoded = event.detail.data, parts = [];
-          for (let offset = 0; offset < encoded.length; offset += 524288) {
-            const binary = atob(encoded.slice(offset, offset + 524288)), bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            parts.push(bytes);
+          if (event.detail.chunks) {
+            if (total) return;
+            total = event.detail.chunks;
+            if (!Number.isInteger(total) || total < 1 || total > 64) throw new Error('Invalid video manifest');
+            queue(); queue(); queue(); return;
           }
-          cleanup(); resolve(new Blob(parts, {type:'video/mp4'}));
+          const index = event.detail.index;
+          if (!Number.isInteger(index) || index < 0 || index >= total || parts[index]) return;
+          const binary = atob(event.detail.data), bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          parts[index] = bytes; received++;
+          $('#demo-status').textContent = `Loading the selected moment… ${Math.round(received / total * 100)}%`;
+          if (received === total) { cleanup(); resolve(new Blob(parts, {type:'video/mp4'})); }
+          else queue();
         } catch (error) { cleanup(); reject(error); }
       };
+      const timeout = setTimeout(fail, 90000);
       window.addEventListener('agenticnav-media', receive); signal.addEventListener('abort', abort, {once:true});
-      script.onerror = () => { cleanup(); reject(new Error('Video could not load')); };
-      script.src = selected.src.replace(/\.mp4$/, '.media.js'); script.async = true;
-      document.head.append(script);
+      append('.media.js');
     });
   }
   async function loadSeekableCopy() {

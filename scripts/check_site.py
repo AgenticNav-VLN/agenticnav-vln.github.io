@@ -52,7 +52,16 @@ def check():
         body=script.read_text(encoding='utf-8')
         transport=json.loads(body.split('{detail:',1)[1].rsplit('}));',1)[0])
         assert transport['id']==d['id']
-        assert base64.b64decode(transport['data'])==(SITE/d['src']).read_bytes()
+        parts=[]
+        for i in range(transport['chunks']):
+            chunk=(SITE/d['src']).with_suffix(f'.media-{i}.js')
+            chunk_body=chunk.read_text(encoding='utf-8')
+            packet=json.loads(chunk_body.split('{detail:',1)[1].rsplit('}));',1)[0])
+            assert packet['id']==d['id'] and packet['index']==i
+            parts.append(base64.b64decode(packet['data']))
+            assert not re.search(r'Eas1L|liyij|AgenticNav-VLN|arxiv.org',chunk_body)
+            assert chunk.read_bytes()==(ANON/chunk.relative_to(SITE)).read_bytes()
+        assert b''.join(parts)==(SITE/d['src']).read_bytes()
         assert not re.search(r'Eas1L|liyij|AgenticNav-VLN|arxiv.org',body)
         assert script.read_bytes()==(ANON/script.relative_to(SITE)).read_bytes()
     for p in (SITE/'static/videos/web').glob('*.mp4'):
