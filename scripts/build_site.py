@@ -18,7 +18,7 @@ TEMPLATE='''<!doctype html>
 <title>AgenticNav — Navigation through action, depth &amp; memory</title>
 <meta name="description" content="Zero-shot vision-and-language navigation as a tool-calling harness. Explore five real-world demonstrations and an interactive explanation of AgenticNav.">
 <meta name="theme-color" content="#14345b">__META__
-<link rel="stylesheet" href="static/css/index.css?v=20260923"><script defer src="static/js/index.js?v=20260923"></script></head>
+<link rel="stylesheet" href="static/css/index.css?v=20260923-2"><script defer src="static/js/index.js?v=20260923-2"></script></head>
 <body><a class="skip-link" href="#demos">Skip to demonstrations</a>
 <header class="site-header"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><nav aria-label="Main navigation"><a href="#demos">Demos</a><a href="#idea">The idea</a><a href="#method">How it works</a><a href="#paper">Research</a></nav><a class="nav-cta" href="#demos">Explore <span aria-hidden="true">↗</span></a></header>
 <main><section class="hero" id="top"><video id="hero-video" muted loop playsinline preload="none" poster="static/images/web/hero.jpg" aria-label="Fast-forwarded real-world navigation highlights"><source data-src="static/videos/web/hero.mp4" type="video/mp4"></video><div class="hero-shade"></div>
@@ -46,10 +46,16 @@ TEMPLATE='''<!doctype html>
 __CITATION__</main><footer class="container"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><p>__FOOTER__</p><a href="#top">Back to top ↑</a></footer><script type="application/json" id="demo-data">__DEMOS__</script></body></html>'''
 
 def build():
-    import re
+    import re, base64, json
     source=(SITE.parent/'icra_paper_agenticnav/paper/root.tex').read_text(encoding='utf-8')
     abstract=source.split('\\begin{abstract}')[1].split('\\end{abstract}')[0].split('Project website:')[0].strip().replace('\\textbf{AgenticNav}','AgenticNav').replace('\\%','%')
     data=(SITE/'static/js/demos.json').read_text(encoding='utf-8')
+    # Anonymous GitHub's opaque-origin sandbox blocks fetch and byte-range seeks.
+    # A classic script is an allowed transport for a user-requested local MP4.
+    for demo in json.loads(data):
+        media=SITE/demo['src']
+        payload={'id':demo['id'],'data':base64.b64encode(media.read_bytes()).decode('ascii')}
+        media.with_suffix('.media.js').write_text('window.dispatchEvent(new CustomEvent("agenticnav-media",{detail:'+json.dumps(payload,separators=(',',':'))+'}));\n',encoding='utf-8')
     for anonymous,dest in [(False,SITE),(True,ANON)]:
         values={
           'META':'<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">' if anonymous else '<link rel="canonical" href="https://agenticnav-vln.github.io/">',

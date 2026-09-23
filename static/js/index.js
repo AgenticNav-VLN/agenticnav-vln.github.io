@@ -38,6 +38,32 @@
     pendingSeek = null; video.currentTime = time; update(time);
     if (wantsPlay) video.play().catch(() => { wantsPlay = false; setPlayState(); });
   }
+  function loadVideoScript(selected, signal) {
+    // The anonymous host applies an opaque-origin sandbox. Classic local scripts
+    // are allowed there, while fetch is blocked. Carry the same MP4 bytes through
+    // an on-demand script, then play a Blob without contacting another host.
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      const cleanup = () => { window.removeEventListener('agenticnav-media', receive); signal.removeEventListener('abort', abort); script.remove(); };
+      const abort = () => { cleanup(); reject(new DOMException('Aborted', 'AbortError')); };
+      const receive = event => {
+        if (event.detail?.id !== selected.id || signal.aborted) return;
+        try {
+          const encoded = event.detail.data, parts = [];
+          for (let offset = 0; offset < encoded.length; offset += 524288) {
+            const binary = atob(encoded.slice(offset, offset + 524288)), bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            parts.push(bytes);
+          }
+          cleanup(); resolve(new Blob(parts, {type:'video/mp4'}));
+        } catch (error) { cleanup(); reject(error); }
+      };
+      window.addEventListener('agenticnav-media', receive); signal.addEventListener('abort', abort, {once:true});
+      script.onerror = () => { cleanup(); reject(new Error('Video could not load')); };
+      script.src = selected.src.replace(/\.mp4$/, '.media.js'); script.async = true;
+      document.head.append(script);
+    });
+  }
   async function loadSeekableCopy() {
     // Some anonymous proxies do not implement byte-range requests. A local blob
     // makes the same approved video seekable without using an external host.
@@ -48,11 +74,21 @@
     fullDownload = controller;
     $('#demo-status').textContent = 'Loading the selected moment…';
     try {
-      const response = await fetch(selected.src, {signal:controller.signal});
-      if (!response.ok) throw new Error('Video unavailable');
-      const blob = await response.blob();
+      let blob;
+      if (window.origin === 'null') blob = await loadVideoScript(selected, controller.signal);
+      else {
+        try {
+          const response = await fetch(selected.src, {signal:controller.signal});
+          if (!response.ok) throw new Error('Video unavailable');
+          blob = await response.blob();
+        } catch (error) {
+          if (controller.signal.aborted) throw error;
+          blob = await loadVideoScript(selected, controller.signal);
+        }
+      }
       if (controller.signal.aborted || current !== selected) return;
       objectURL = URL.createObjectURL(blob); video.src = objectURL; video.load();
+      $('#media-error').hidden = true;
       $('#demo-status').textContent = 'Video ready. Click any phrase to explore.';
     } catch (error) {
       if (error.name !== 'AbortError') $('#media-error').hidden = false;

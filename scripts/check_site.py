@@ -2,7 +2,7 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
-import json, subprocess, hashlib, re
+import json, subprocess, hashlib, re, base64
 from PIL import Image
 
 SITE=Path(__file__).resolve().parents[1]
@@ -48,6 +48,13 @@ def check():
         for r in d['regions']:
             assert abs(r['keyframes'][0]['time']-r['start'])<1e-7
             assert abs(r['keyframes'][-1]['time']-r['end'])<1e-7
+        script=(SITE/d['src']).with_suffix('.media.js')
+        body=script.read_text(encoding='utf-8')
+        transport=json.loads(body.split('{detail:',1)[1].rsplit('}));',1)[0])
+        assert transport['id']==d['id']
+        assert base64.b64decode(transport['data'])==(SITE/d['src']).read_bytes()
+        assert not re.search(r'Eas1L|liyij|AgenticNav-VLN|arxiv.org',body)
+        assert script.read_bytes()==(ANON/script.relative_to(SITE)).read_bytes()
     for p in (SITE/'static/videos/web').glob('*.mp4'):
         metadata=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(p)],text=True))
         streams=metadata['streams']; assert len(streams)==1 and streams[0]['codec_type']=='video'

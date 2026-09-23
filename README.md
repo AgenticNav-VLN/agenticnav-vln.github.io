@@ -45,6 +45,9 @@ this public repository. All anonymous media references are relative to that site
 
 Videos load on demand. If a host does not support byte-range requests, a user-initiated
 seek loads that same local video into a browser blob so instruction seeking still works.
+For anonymous hosts with an opaque-origin sandbox, the same MP4 bytes also have a
+classic-script transport (`*.media.js`), loaded only after an instruction seek requires it.
+This stays within the site's own resources and does not require relaxed host permissions.
 The background pauses offscreen; reduced-motion and data-saving preferences disable its
 automatic playback. Keyboard users can operate the player, instructions, tabs, and walkthrough.
 
