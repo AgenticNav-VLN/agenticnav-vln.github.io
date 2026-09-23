@@ -60,7 +60,7 @@
   }
   async function play() {
     wantsPlay = true; load();
-    if (pendingSeek !== null) { applyPendingSeek(); return; }
+    if (pendingSeek !== null) { applyPendingSeek(); if (video.readyState >= 3) loadSeekableCopy(); return; }
     try { await video.play(); } catch (error) {
       if (error.name !== 'AbortError') { wantsPlay = false; $('#demo-status').textContent = 'Press play to start the video.'; }
     }
@@ -74,6 +74,7 @@
     update(time);
     $('#demo-status').textContent = `${label} · ${clock(time)}`;
     applyPendingSeek();
+    if (video.readyState >= 3) loadSeekableCopy();
   }
   function selectDemo(demo) {
     pause(); pendingSeek = null;
@@ -140,6 +141,7 @@
   progress.addEventListener('input', () => {
     const time = Number(progress.value); pendingSeek = time; load();
     applyPendingSeek();
+    if (video.readyState >= 3) loadSeekableCopy();
     update(time);
   });
   $('#retry-video').addEventListener('click', () => { $('#media-error').hidden = true; video.load(); play(); });
