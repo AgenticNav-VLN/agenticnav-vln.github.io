@@ -18,15 +18,17 @@ have no instruction burned into the image. Building 22 recall windows and target
 tracking boxes are rendered by the page from the original timing and coordinates.
 The kitchen and Building 22 source footage and recalled sign reuse the previously
 approved anonymized assets. Original source files are never overwritten.
+The page flows from Videos to Method, How it works, and Results. The three colored
+blocks in the paper architecture figure open their matching interactive tool tabs.
 
 ## Editing and rebuilding
 
 - `index.html`: complete page, including an embedded copy of the demo manifest.
 - `static/css/index.css`: responsive layout; Calibri bold italic, system fallbacks.
-- `static/js/index.js`: player, synchronized instructions, accessible tool tabs, method walkthrough.
+- `static/js/index.js`: player, synchronized instructions, and architecture figure tool links.
 - `static/js/demos.json`: media and timing manifest. All times are on the exported video clock.
 - `scripts/prepare_media.py`: export approved source footage from the sibling paper workspace.
-- `scripts/build_site.py`: generate public and anonymous HTML and copy matching research assets.
+- `scripts/build_site.py`: refresh research data in the public page, then derive the anonymous page and copy matching assets.
 - `scripts/check_site.py`: references, identities, timeline and media validation.
 
 Run from the outer workspace:
@@ -51,7 +53,8 @@ after an instruction seek requires it. Each chunk carries at most 1.5 MiB of MP4
 at most three load together, with progress feedback, cancellation, and a timeout.
 This stays within the site's own resources and does not require relaxed host permissions.
 The background pauses offscreen; reduced-motion and data-saving preferences disable its
-automatic playback. Keyboard users can operate the player, instructions, tabs, and walkthrough.
+automatic playback. Keyboard users can operate the player, instructions, tool tabs,
+and architecture figure links.
 
 The previous site used the Academic Project Page Template. The current design and
 interaction implementation are custom, with a video hero inspired by the supplied reference.
