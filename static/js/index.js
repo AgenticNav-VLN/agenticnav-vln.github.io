@@ -213,30 +213,11 @@
   if (!reduced.matches && !navigator.connection?.saveData) { loadHero(); hero.play().catch(heroState); }
   new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else if (!heroUserPaused && !reduced.matches && !document.hidden && video.paused) { loadHero(); hero.play().catch(heroState); } }, {threshold:.12}).observe(hero);
 
-  const steps = [
-    ['Start with the current observation.', 'The model receives the instruction, RGB views, a compact map, and recent reasoning and action history.'],
-    ['Query the depth of selected pixels.', 'The depth tool returns metric distances at the requested image coordinates. The model uses this spatial evidence in its reasoning.'],
-    ['Recall an observation when it becomes relevant.', 'The model selects a past decision point and view from memory. The recall tool returns the corresponding image.'],
-    ['Select a visible target. Check. Execute.', 'The action tool converts a selected pixel into a motion target. Geometric checks validate the motion; an unsafe request returns feedback for reselection.'],
-    ['Observe the result and update memory.', 'The robot moves or stops. New observations and recent reasoning and action history support the next decision. Tool calls are selected as needed, not in a fixed order.']
-  ];
-  let step = 0, timer = null;
-  function stopWalkthrough() { clearInterval(timer); timer = null; $('#method-play').textContent = 'Play walkthrough ▶'; }
-  function showStep(index) {
-    step = index; $('.method-diagram').dataset.step = index;
-    $$('[data-step]').filter(b => b.tagName === 'BUTTON').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.step) === index)));
-    $$('.diagram-node').forEach(n => n.classList.toggle('active', index === 0 ? n.classList.contains('observation-node') : index === 4 ? n.classList.contains('core-node') || n.classList.contains('observation-node') : Number(n.dataset.node) === index));
-    $$('[data-connection]').forEach(p => p.classList.toggle('active', Number(p.dataset.connection) === index));
-    $('#method-count').textContent = `0${index + 1} / 05`; $('#method-title').textContent = steps[index][0]; $('#method-description').textContent = steps[index][1];
-    $('#method-next').innerHTML = index === 4 ? 'Start again <span aria-hidden="true">↺</span>' : 'Next step <span aria-hidden="true">→</span>';
-  }
-  $$('button[data-step],button[data-node]').forEach(b => b.addEventListener('click', () => { stopWalkthrough(); showStep(Number(b.dataset.step ?? b.dataset.node)); }));
-  $('#method-next').addEventListener('click', () => { stopWalkthrough(); showStep((step + 1) % 5); });
-  $('#method-play').addEventListener('click', () => {
-    if (timer) { stopWalkthrough(); return; } showStep(0); $('#method-play').textContent = 'Pause walkthrough Ⅱ';
-    timer = setInterval(() => { if (step === 4) stopWalkthrough(); else showStep(step + 1); }, 3200);
-  });
-  showStep(0);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); stopWalkthrough(); } else if (heroVisible && !heroUserPaused && !reduced.matches) hero.play().catch(heroState); });
-  reduced.addEventListener('change', () => { if (reduced.matches) { hero.pause(); stopWalkthrough(); } });
+  $$('[data-tool-target]').forEach(link => link.addEventListener('click', () => {
+    const tab = $(`#tab-${link.dataset.toolTarget}`);
+    tab.click();
+    tab.focus({preventScroll:true});
+  }));
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); } else if (heroVisible && !heroUserPaused && !reduced.matches) hero.play().catch(heroState); });
+  reduced.addEventListener('change', () => { if (reduced.matches) hero.pause(); });
 })();
