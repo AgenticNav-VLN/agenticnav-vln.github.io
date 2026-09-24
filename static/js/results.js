@@ -88,6 +88,109 @@
     }
   };
 
+  // Exact values from paper/figs/gemini_backbone_scaling.json, which supplies
+  // the two-panel Gemini scaling figure in the current manuscript.
+  const geminiScaling = {
+    models: ['Gemini 2.5 Flash', 'Gemini 2.5 Pro', 'Gemini 3 Flash', 'Gemini 3.7 Flash'],
+    methods: [
+      {name: 'AgenticNav', color: '#e4aa00', marker: 'circle', sr: [30, 58, 63, 76], spl: [19.7, 42.91, 52.18, 66.5]},
+      {name: 'SmartWay', color: '#2563b4', marker: 'square', sr: [27, 52, 47, 54], spl: [17.29, 41.7, 32.35, 47.95]},
+      {name: 'Open-Nav', color: '#77adde', marker: 'triangle', sr: [25, 27, 28, 31], spl: [17.48, 23.22, 21.45, 24.93]}
+    ]
+  };
+  const svgNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attributes = {}) {
+    const element = document.createElementNS(svgNS, tag);
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, String(value)));
+    return element;
+  }
+
+  function renderGeminiScaling() {
+    const card = document.querySelector('[data-line-chart="gemini"]');
+    if (!card) return;
+    const legend = card.querySelector('.line-legend'), panels = card.querySelector('.line-panels');
+    const detail = card.querySelector('.line-detail');
+    const visible = new Map(geminiScaling.methods.map(method => [method.name, true]));
+    const seriesGroups = [];
+    const x = [69, 214, 359, 504];
+    const y = value => 270 - value * 2.4;
+    const metrics = [
+      {key: 'sr', label: 'Success Rate (SR, %)'},
+      {key: 'spl', label: 'Success Weighted by Path Length (SPL, %)'}
+    ];
+
+    geminiScaling.methods.forEach(method => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.setAttribute('aria-pressed', 'true');
+      button.setAttribute('aria-label', `Hide ${method.name} in both charts`);
+      const swatch = document.createElement('span'); swatch.className = 'line-swatch'; swatch.style.backgroundColor = method.color;
+      const label = document.createElement('span'); label.textContent = method.name;
+      button.append(swatch, label);
+      button.addEventListener('click', () => {
+        const show = !visible.get(method.name);
+        visible.set(method.name, show);
+        button.setAttribute('aria-pressed', String(show));
+        button.setAttribute('aria-label', `${show ? 'Hide' : 'Show'} ${method.name} in both charts`);
+        seriesGroups.filter(item => item.name === method.name).forEach(item => {
+          item.group.style.display = show ? '' : 'none';
+          item.points.forEach(point => point.setAttribute('tabindex', show ? '0' : '-1'));
+        });
+        detail.textContent = `${method.name} ${show ? 'shown' : 'hidden'} in both charts.`;
+      });
+      legend.append(button);
+    });
+
+    metrics.forEach(metric => {
+      const panel = document.createElement('section'); panel.className = 'line-panel';
+      const heading = document.createElement('h4'); heading.textContent = metric.label;
+      const plot = svg('svg', {viewBox: '0 0 570 355', role: 'group', 'aria-label': `${metric.label} across four Gemini backbones`});
+      [0, 20, 40, 60, 80, 100].forEach(tick => {
+        const ordinate = y(tick);
+        plot.append(svg('line', {x1: 69, x2: 535, y1: ordinate, y2: ordinate, class: 'line-grid'}));
+        const label = svg('text', {x: 55, y: ordinate + 5, class: 'line-tick', 'text-anchor': 'end'});
+        label.textContent = String(tick); plot.append(label);
+      });
+      plot.append(svg('line', {x1: 69, x2: 535, y1: 270, y2: 270, class: 'line-axis'}));
+      geminiScaling.models.forEach((model, index) => {
+        const label = svg('text', {x: x[index], y: 299, class: 'line-model', 'text-anchor': 'middle'});
+        const first = svg('tspan', {x: x[index]}); first.textContent = 'Gemini';
+        const second = svg('tspan', {x: x[index], dy: 18}); second.textContent = model.replace('Gemini ', '');
+        label.append(first, second); plot.append(label);
+      });
+      geminiScaling.methods.forEach(method => {
+        const group = svg('g', {'data-series': method.name});
+        const points = method[metric.key].map((value, index) => [x[index], y(value)]);
+        group.append(svg('polyline', {
+          points: points.map(point => point.join(',')).join(' '), fill: 'none', stroke: method.color,
+          'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+        }));
+        const focusable = [];
+        points.forEach(([cx, cy], index) => {
+          const point = svg('g', {class: 'line-point', role: 'button', tabindex: 0,
+            'aria-label': `${method.name}, ${geminiScaling.models[index]}, ${metric.label}: ${format(metric.key, method[metric.key][index])}`});
+          point.append(svg('circle', {cx, cy, r: 15, fill: 'transparent'}));
+          if (method.marker === 'circle') point.append(svg('circle', {cx, cy, r: 6, fill: 'white', stroke: method.color, 'stroke-width': 4}));
+          if (method.marker === 'square') point.append(svg('rect', {x: cx - 6, y: cy - 6, width: 12, height: 12, fill: 'white', stroke: method.color, 'stroke-width': 4}));
+          if (method.marker === 'triangle') point.append(svg('polygon', {points: `${cx},${cy - 8} ${cx + 8},${cy + 7} ${cx - 8},${cy + 7}`, fill: 'white', stroke: method.color, 'stroke-width': 4}));
+          const showValue = () => {
+            card.querySelectorAll('.line-point.is-active').forEach(active => active.classList.remove('is-active'));
+            point.classList.add('is-active');
+            detail.textContent = `${method.name} · ${geminiScaling.models[index]} · ${metric.label}: ${format(metric.key, method[metric.key][index])}`;
+          };
+          point.addEventListener('pointerenter', showValue);
+          point.addEventListener('focus', showValue);
+          point.addEventListener('click', showValue);
+          point.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); showValue(); } });
+          group.append(point); focusable.push(point);
+        });
+        seriesGroups.push({name: method.name, group, points: focusable});
+        plot.append(group);
+      });
+      panel.append(heading, plot); panels.append(panel);
+    });
+  }
+  renderGeminiScaling();
+
   function format(metric, value) {
     const number = metric === 'sr' ? (Number.isInteger(value) ? String(value) : value.toFixed(1)) : value.toFixed(2);
     return `${number}${metricInfo[metric].unit}`;
