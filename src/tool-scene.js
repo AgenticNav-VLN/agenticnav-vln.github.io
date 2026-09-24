@@ -5,20 +5,20 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
   const root=$('#idea-panel'); if(!root)return;
   const info={
-    action:{title:'Choose a point. See the robot move.',description:'Click an open patch of floor in the camera view. The selected pixel becomes a destination; the robot moves only if the straight path is clear.',hint:'Click the floor to move · drag to look around',button:'Move toward the doorway',color:'#d78734'},
-    depth:{title:'Point at a surface. Get its distance.',description:'Click the floor, a tabletop, or a wall to measure the distance from the camera to that exact surface. Compare up to three points without moving the robot.',hint:'Click any surface to measure · drag to look around',button:'Measure the table',color:'#8b63c7'},
-    recall:{title:'Choose a past point. Retrieve its view.',description:'Select a numbered decision point on the bird’s-eye map. Recall returns the observation saved there. Your moves add new observations to the same trajectory.',hint:'Select a numbered point on the map',button:'Recall the previous view',color:'#359574'}
+    action:{title:'Choose a Point. See the Robot Move.',description:'Click an open patch of floor in the camera view. The selected pixel becomes a destination; the robot moves only if the straight path is clear.',hint:'Click the floor to move · drag to look around',button:'Move Toward the Doorway',color:'#d78734'},
+    depth:{title:'Point at a Surface. Get Its Distance.',description:'Click the floor, a tabletop, or a wall to measure the distance from the camera to that exact surface. Compare up to three points without moving the robot.',hint:'Click any surface to measure · drag to look around',button:'Measure the Table',color:'#8b63c7'},
+    recall:{title:'Choose a Past Point. Retrieve Its View.',description:'Select a numbered decision point on the bird’s-eye map. Recall returns the observation saved there. Your moves add new observations to the same trajectory.',hint:'Select a numbered point on the map',button:'Recall the Previous View',color:'#359574'}
   };
   let mode='action', initialized=false, scene, renderer, camera, floor, pose={...SEED[2]}, motion=null;
   let memories=[], serial=0, selectedMemory=0, queries=[], marker, resizeObserver;
   const meshes=[], queryMeshes=[];
-  $('#idea-visual').innerHTML=`<div class="tool-toolbar"><span id="tool-view-label">Robot camera</span><span class="scene-badge">Interactive illustration</span></div>
+  $('#idea-visual').innerHTML=`<div class="tool-toolbar"><span id="tool-view-label">Robot Camera</span><span class="scene-badge">Interactive Illustration</span></div>
     <div class="tool-stage" id="tool-stage"><canvas id="tool-canvas" tabindex="0" aria-label="Interactive robot camera. Drag or use arrow keys to look around. Press Enter to select the centre point."></canvas><div class="tool-pins" id="tool-pins" aria-hidden="true"></div><span class="tool-crosshair" aria-hidden="true">+</span><div class="scene-loading" id="scene-loading">Loading the room…</div></div>
     <div class="recall-workspace" id="recall-workspace" hidden><div class="bev-wrap"><svg id="tool-map" viewBox="0 0 328 376" role="group" aria-label="Bird’s-eye map of past decisions"></svg><p>Numbered dots are saved decisions.</p></div><figure class="recalled-view"><img id="recalled-image" alt=""><figcaption id="recalled-caption"></figcaption></figure></div>
     <div class="scene-controls" id="scene-controls"><button type="button" id="look-left" aria-label="Look left">↶ <span>Look left</span></button><span id="scene-position">Shared room · metres</span><button type="button" id="look-right" aria-label="Look right"><span>Look right</span> ↷</button></div>
     <div class="memory-decisions" id="memory-decisions" aria-label="Saved observations" hidden></div><p class="tool-hint" id="tool-hint"></p>`;
   const canvas=$('#tool-canvas'), stage=$('#tool-stage');
-  $('#idea-action').insertAdjacentHTML('afterend','<button type="button" class="scene-reset" id="scene-reset">Reset room ↺</button><p class="scene-note">A shared, simplified 3D environment. Distances are computed in metres; this illustration does not run the navigation model.</p>');
+  $('#idea-action').insertAdjacentHTML('afterend','<button type="button" class="scene-reset" id="scene-reset">Reset Room ↺</button><p class="scene-note">A shared, simplified 3D environment. Distances are computed in metres; this illustration does not run the navigation model.</p>');
   function say(text){$('#idea-result').textContent=text;}
   function syncCamera(){camera.position.set(pose.x,1.25,pose.z);camera.rotation.order='YXZ';camera.rotation.set(pose.pitch,pose.yaw,0);camera.updateMatrixWorld();}
   function draw(){if(!initialized)return;syncCamera();renderer.render(scene,camera);updatePins();}
@@ -140,9 +140,9 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   }
   function setMode(key){
     mode=key;root.dataset.tool=mode;root.style.setProperty('--tool-color',info[key].color);
-    $('#idea-kicker').textContent=key==='recall'?'Recall tool':`${key[0].toUpperCase()+key.slice(1)} tool`;
+    $('#idea-kicker').textContent=key==='recall'?'Recall Tool':`${key[0].toUpperCase()+key.slice(1)} Tool`;
     $('#idea-title').textContent=info[key].title;$('#idea-description').textContent=info[key].description;$('#idea-action').textContent=info[key].button+' →';$('#tool-hint').textContent=info[key].hint;
-    stage.hidden=key==='recall';$('#recall-workspace').hidden=key!=='recall';$('#scene-controls').hidden=key==='recall';$('#memory-decisions').hidden=key!=='recall';$('#tool-view-label').textContent=key==='recall'?'Trajectory → saved observation':'Robot camera';
+    stage.hidden=key==='recall';$('#recall-workspace').hidden=key!=='recall';$('#scene-controls').hidden=key==='recall';$('#memory-decisions').hidden=key!=='recall';$('#tool-view-label').textContent=key==='recall'?'Trajectory → Saved Observation':'Robot Camera';
     root.setAttribute('aria-labelledby',`tab-${key}`);$$('[data-idea]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.idea===key));b.tabIndex=b.dataset.idea===key?0:-1;});
     if(initialized){queryMeshes.forEach(m=>m.visible=key==='depth');if(key==='recall'){renderMap();showMemory(selectedMemory||memories[0].id,false);}else resize();}
     say(key==='recall'?'Choose a decision on the map. Three example observations are included; your moves add more.':info[key].hint+'.');

@@ -40,15 +40,15 @@ def build():
         for i,chunk in enumerate(chunks):
             write_transport(media.with_suffix(f'.media-{i}.js'),{'id':demo['id'],'index':i,'data':base64.b64encode(chunk).decode('ascii')})
     public_page=(SITE/'index.html').read_text(encoding='utf-8')
-    public_page=replace_between(public_page,'<details><summary>Read the abstract</summary><p>','</p></details>',abstract)
+    public_page=replace_between(public_page,'<details><summary>Read the Abstract</summary><p>','</p></details>',abstract)
     public_page=replace_between(public_page,'<script type="application/json" id="demo-data">','</script>',data)
     if 'class="authors"' in public_page or 'class="affiliations"' in public_page or 'class="citation' in public_page:
         raise ValueError('Remove author and affiliation blocks before building')
     anonymous_page=public_page
     replacements=(
         ('<link rel="canonical" href="https://agenticnav-vln.github.io/">','<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">'),
-        ('<a class="button button-glass" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the paper ↗</a>',''),
-        ('<a class="text-button" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the paper ↗</a>',''),
+        ('<a class="button button-glass" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the Paper ↗</a>',''),
+        ('<a class="text-button" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the Paper ↗</a>',''),
         ('Vision-and-language navigation · 2026','Anonymous research project · 2026'),
     )
     for old,new in replacements:
@@ -57,7 +57,7 @@ def build():
         anonymous_page=anonymous_page.replace(old,new)
     (SITE/'index.html').write_text(public_page,encoding='utf-8')
     (ANON/'index.html').write_text(anonymous_page,encoding='utf-8')
-    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
+    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json','static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
         (ANON/rel).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(SITE/rel,ANON/rel)
     for rel in ['static/images/web','static/videos/web']: shutil.copytree(SITE/rel,ANON/rel,dirs_exist_ok=True)
     print('Built public and anonymous sites with matching research content.')

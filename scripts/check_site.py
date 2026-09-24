@@ -33,13 +33,14 @@ def check():
         embedded=json.loads(page.split('<script type="application/json" id="demo-data">')[1].split('</script>')[0])
         assert embedded==demos
         if root==ANON:
-            for p in [root/'index.html',root/'static/js/index.js',root/'static/js/demos.json',root/'static/css/index.css',root/'static/js/tool-scene.js',root/'static/css/tool-scene.css']:
+            for p in [root/'index.html',root/'static/js/index.js',root/'static/js/demos.json',root/'static/js/results.js',root/'static/css/index.css',root/'static/js/tool-scene.js',root/'static/css/tool-scene.css']:
                 content=p.read_text(encoding='utf-8-sig')
                 assert not re.search(r'Eas1L|liyij|Yijian|Changze|Hantian|Jiaying|Jiyuan|Tong Qin|Ming Yang|Shanghai|Jiao Tong|Yinwang|arxiv|agenticnav-vln\.github|C:\\',content,re.I),p
             assert not any(urlsplit(ref).scheme in ('http','https') for ref in refs), 'External anonymous reference'
         subprocess.run(['node','--check',str(root/'static/js/index.js')],check=True)
+        subprocess.run(['node','--check',str(root/'static/js/results.js')],check=True)
         subprocess.run(['node','--check',str(root/'static/js/tool-scene.js')],check=True)
-        for asset in ['static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
+        for asset in ['static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
             assert (SITE/asset).read_bytes()==(ANON/asset).read_bytes(),asset
         for p in (root/'static/images/web').glob('*'):
             with Image.open(p) as im: assert not im.getexif(),p

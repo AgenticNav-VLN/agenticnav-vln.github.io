@@ -8,12 +8,12 @@
   const video = $('#demo-video'), player = $('#player'), progress = $('#seek');
   let current = demos[0], pendingSeek = null, wantsPlay = false;
   let fullDownload = null, objectURL = null;
-  const names = ['Long-range journey', 'Building 22', 'Kitchen fridge', 'Trash bin', 'Table tennis'];
+  const names = ['Indoor-to-Outdoor Journey', 'Building 22', 'Kitchen Fridge', 'Trash Bin', 'Table Tennis'];
   demos.forEach((demo, i) => {
     const button = document.createElement('button');
     button.className = 'demo-choice'; button.type = 'button'; button.dataset.demo = demo.id;
     button.setAttribute('aria-pressed', 'false');
-    button.innerHTML = `<img src="${demo.poster}" alt="" loading="lazy"><span><strong>${names[i]}</strong><small>${clock(demo.duration)} · 10× speed</small></span>`;
+    button.innerHTML = `<img src="${demo.poster}" alt="" loading="lazy"><span><strong>${names[i]}</strong><small>${clock(demo.duration)}</small></span>`;
     button.addEventListener('click', () => selectDemo(demo));
     $('.demo-picker').append(button);
   });
@@ -204,20 +204,17 @@
   document.addEventListener('fullscreenchange', () => $('#fullscreen').setAttribute('aria-label', document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'));
   selectDemo(current);
 
-  const hero = $('#hero-video'), heroToggle = $('#hero-toggle');
-  let heroUserPaused = false, heroVisible = true;
+  const hero = $('#hero-video');
+  let heroVisible = true;
   function loadHero() { const source = $('source', hero); if (!source.src) { source.src = source.dataset.src; hero.load(); } }
-  function heroState() { const playing = !hero.paused; heroToggle.innerHTML = `${playing ? 'Pause background' : 'Play background'} <span aria-hidden="true">${playing ? 'Ⅱ' : '▶'}</span>`; heroToggle.setAttribute('aria-label', playing ? 'Pause background video' : 'Play background video'); }
-  hero.addEventListener('play', heroState); hero.addEventListener('pause', heroState);
-  heroToggle.addEventListener('click', () => { if (hero.paused) { heroUserPaused = false; loadHero(); hero.play().catch(heroState); } else { heroUserPaused = true; hero.pause(); } });
-  if (!reduced.matches && !navigator.connection?.saveData) { loadHero(); hero.play().catch(heroState); }
-  new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else if (!heroUserPaused && !reduced.matches && !document.hidden && video.paused) { loadHero(); hero.play().catch(heroState); } }, {threshold:.12}).observe(hero);
+  if (!reduced.matches && !navigator.connection?.saveData) { loadHero(); hero.play().catch(() => {}); }
+  new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else if (!reduced.matches && !document.hidden && video.paused) { loadHero(); hero.play().catch(() => {}); } }, {threshold:.12}).observe(hero);
 
   $$('[data-tool-target]').forEach(link => link.addEventListener('click', () => {
     const tab = $(`#tab-${link.dataset.toolTarget}`);
     tab.click();
     tab.focus({preventScroll:true});
   }));
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); } else if (heroVisible && !heroUserPaused && !reduced.matches) hero.play().catch(heroState); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); } else if (heroVisible && !reduced.matches && video.paused) hero.play().catch(() => {}); });
   reduced.addEventListener('change', () => { if (reduced.matches) hero.pause(); });
 })();
