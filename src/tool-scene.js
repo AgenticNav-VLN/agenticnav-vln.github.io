@@ -12,9 +12,10 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   };
   let mode='action', initialized=false, scene, renderer, camera, floor, pose={...SEED[2]}, motion=null;
   let memories=[], serial=0, selectedMemory=0, queries=[], marker, resizeObserver;
+  let selectedTarget=null, selectionTimer=null;
   const meshes=[], queryMeshes=[];
   $('#idea-visual').innerHTML=`<div class="tool-toolbar"><span id="tool-view-label">Robot Camera</span><span class="scene-badge">Interactive Illustration</span></div>
-    <div class="tool-stage" id="tool-stage"><canvas id="tool-canvas" tabindex="0" aria-label="Interactive robot camera. Drag or use arrow keys to look around. Press Enter to select the centre point."></canvas><div class="tool-pins" id="tool-pins" aria-hidden="true"></div><span class="tool-crosshair" aria-hidden="true">+</span><div class="scene-loading" id="scene-loading">Loading the room…</div></div>
+    <div class="tool-stage" id="tool-stage"><canvas id="tool-canvas" tabindex="0" aria-label="Interactive robot camera. Drag or use arrow keys to look around. Press Enter to select the centre point."></canvas><div class="tool-pins" id="tool-pins" aria-hidden="true"></div><span class="tool-crosshair" aria-hidden="true"></span><div class="scene-loading" id="scene-loading">Loading the room…</div></div>
     <div class="recall-workspace" id="recall-workspace" hidden><div class="bev-wrap"><svg id="tool-map" viewBox="0 0 328 376" role="group" aria-label="Bird’s-eye map of past decisions"></svg><p>Numbered dots are saved decisions.</p></div><figure class="recalled-view"><img id="recalled-image" alt=""><figcaption id="recalled-caption"></figcaption></figure></div>
     <div class="scene-controls" id="scene-controls"><button type="button" id="look-left" aria-label="Look left">↶ <span>Look left</span></button><span id="scene-position">Shared room · metres</span><button type="button" id="look-right" aria-label="Look right"><span>Look right</span> ↷</button></div>
     <div class="memory-decisions" id="memory-decisions" aria-label="Saved observations" hidden></div><p class="tool-hint" id="tool-hint"></p>`;
@@ -35,6 +36,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   function detailBox(x,y,z,w,h,d,color,metalness=0,name){
     return detail(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:metalness ? .42 : .82,metalness}),x,y,z,name);
   }
+  function ceilingDetail(...args){const mesh=detailBox(...args);mesh.castShadow=false;return mesh;}
   function rounded(x,y,z,w,h,d,r,color,name){
     return detail(new RoundedBoxGeometry(w,h,d,3,r),new THREE.MeshStandardMaterial({color,roughness:.96}),x,y,z,name);
   }
@@ -82,23 +84,23 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
     const ceiling=box(0,3.4,0,12,.18,14,0xffffff,'Ceiling');
     ceiling.material.map=patternedSurface('ceiling');ceiling.material.roughness=.9;ceiling.material.needsUpdate=true;
     ceiling.castShadow=false;
-    for(const x of [-4,-2,0,2,4])detailBox(x,3.297,0,.018,.018,14,0xc7c6bf,.25);
-    for(const z of [-5,-3,-1,1,3,5])detailBox(0,3.297,z,12,.018,.018,0xc7c6bf,.25);
+    for(const x of [-4,-2,0,2,4])ceilingDetail(x,3.297,0,.018,.018,14,0xc7c6bf,.25);
+    for(const z of [-5,-3,-1,1,3,5])ceilingDetail(0,3.297,z,12,.018,.018,0xc7c6bf,.25);
     for(const [x,z] of [[-2.3,-3],[2.3,-3],[-2.3,3],[2.3,3]]){
-      detailBox(x,3.272,z,1.25,.035,1.8,0x9b9f9d,.45);
-      const panel=detailBox(x,3.247,z,1.12,.014,1.67,0xfff7e9,0,'Ceiling light');
+      ceilingDetail(x,3.272,z,1.25,.035,1.8,0x9b9f9d,.45);
+      const panel=ceilingDetail(x,3.247,z,1.12,.014,1.67,0xfff7e9,0,'Ceiling light');
       panel.material.emissive.setHex(0xffedca);panel.material.emissiveIntensity=.8;
       const lamp=new THREE.PointLight(0xfff0d8,4,8,2);lamp.position.set(x,3.04,z);scene.add(lamp);
     }
-    detailBox(4.45,3.271,-5.02,1.28,.03,.78,0x8e9b9d,.7);
-    for(let i=0;i<8;i++)detailBox(3.96+i*.14,3.245,-5.02,.045,.012,.65,0x465e65,.7);
+    ceilingDetail(4.45,3.271,-5.02,1.28,.03,.78,0x8e9b9d,.7);
+    for(let i=0;i<8;i++)ceilingDetail(3.96+i*.14,3.245,-5.02,.045,.012,.65,0x465e65,.7);
     for(const z of [-6.96,6.96]){
       detailBox(0,.14,z,12,.27,.045,0xb7b0a2);
-      detailBox(0,3.17,z,12,.11,.065,0xf4f1e8);
+      ceilingDetail(0,3.17,z,12,.11,.065,0xf4f1e8);
     }
     for(const x of [-5.96,5.96]){
       detailBox(x,.14,0,.045,.27,14,0xb7b0a2);
-      detailBox(x,3.17,0,.065,.11,14,0xf4f1e8);
+      ceilingDetail(x,3.17,0,.065,.11,14,0xf4f1e8);
     }
     // Keep the existing door and window positions; add construction details around them.
     box(.4,1.2,-6.96,1.9,2.4,.10,0x315e69,'Door');
@@ -167,7 +169,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
         detailBox(o.x,1.89,o.z,1.12,.035,3.12,0x9a795d);
       }
     });
-    marker=new THREE.Mesh(new THREE.RingGeometry(.16,.24,36),new THREE.MeshBasicMaterial({color:0xd78734,side:THREE.DoubleSide}));marker.rotation.x=-Math.PI/2;marker.visible=false;scene.add(marker);
+    marker=new THREE.Mesh(new THREE.RingGeometry(.20,.32,36),new THREE.MeshBasicMaterial({color:0xf39a30,side:THREE.DoubleSide}));marker.rotation.x=-Math.PI/2;marker.visible=false;scene.add(marker);
   }
   function snapshot(savedPose){
     const previous=pose;pose=savedPose;syncCamera();const wasVisible=marker.visible;marker.visible=false;queryMeshes.forEach(m=>m.visible=false);
@@ -179,7 +181,8 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
     if(memories.length>24)memories.shift();selectedMemory=memories[memories.length-1].id;renderMap();
   }
   function reset(){
-    if(!initialized)return;motion=null;queries=[];clearQueryMeshes();marker.visible=false;memories=[];serial=0;
+    if(!initialized)return;clearTimeout(selectionTimer);selectionTimer=null;selectedTarget=null;
+    motion=null;queries=[];clearQueryMeshes();marker.visible=false;memories=[];serial=0;
     for(const p of SEED){pose={...p};saveObservation();}pose={...SEED[2]};renderMap();showMemory(memories[0].id,false);draw();updatePosition();
     say('Room reset. Three sample decisions are ready; your moves will add more.');
   }
@@ -196,7 +199,15 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   function updatePosition(){root.dataset.position=`${pose.x.toFixed(3)},${pose.z.toFixed(3)}`;$('#scene-position').textContent=`${memories.length} saved observations`;}
   function clearQueryMeshes(){queryMeshes.splice(0).forEach(m=>{scene.remove(m);m.geometry.dispose();m.material.dispose();});$('#tool-pins').replaceChildren();}
   function updatePins(){
-    $('#tool-pins').replaceChildren();if(mode!=='depth')return;
+    $('#tool-pins').replaceChildren();
+    if(mode==='action'&&selectedTarget){
+      const p=new THREE.Vector3(selectedTarget.x,.035,selectedTarget.z).project(camera);
+      if(p.z>=-1&&p.z<=1&&Math.abs(p.x)<=1&&Math.abs(p.y)<=1){
+        const pin=document.createElement('span');pin.className='action-pin';
+        pin.style.left=`${(p.x+1)*50}%`;pin.style.top=`${(1-p.y)*50}%`;$('#tool-pins').append(pin);
+      }
+    }
+    if(mode!=='depth')return;
     queries.forEach(q=>{const p=q.point.clone().project(camera);if(p.z>1||p.z< -1||Math.abs(p.x)>1||Math.abs(p.y)>1)return;
       const pin=document.createElement('span');pin.className='depth-pin';pin.style.left=`${(p.x+1)*50}%`;pin.style.top=`${(1-p.y)*50}%`;pin.textContent=`${q.distance.toFixed(2)} m`;$('#tool-pins').append(pin);
     });
@@ -213,23 +224,32 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
       say(`${hit.object.userData.name} · ${hit.distance.toFixed(2)} m from the camera along the selected viewing ray. The robot has not moved.`);draw();return;
     }
     if(!hit.object.userData.floor){say(`${hit.object.userData.name} is not an open floor target. Choose a point on the floor.`);return;}
-    move({x:hit.point.x,z:hit.point.z});
+    selectActionTarget({x:hit.point.x,z:hit.point.z});
   }
-  function move(target){
+  function selectActionTarget(target){
     const length=Math.hypot(target.x-pose.x,target.z-pose.z);
     if(length<.15){say('This point is already within reach. Choose a point farther away.');return;}
     if(!safePath(pose,target)){say('Path blocked by furniture or the room boundary. Choose another point with a clear approach.');root.dataset.lastMove='blocked';return;}
+    clearTimeout(selectionTimer);selectedTarget={...target};
     queries=[];clearQueryMeshes();marker.position.set(target.x,.025,target.z);marker.visible=true;
+    root.dataset.selectedPoint=`${target.x.toFixed(2)},${target.z.toFixed(2)}`;
+    root.dataset.lastMove='selected';
+    say(`Action target selected on the floor · ${length.toFixed(2)} m away. Clear path; moving to that point.`);
+    draw();
+    selectionTimer=setTimeout(()=>{selectionTimer=null;startMove(target,length);},650);
+  }
+  function startMove(target,length){
+    if(!selectedTarget||motion||mode!=='action')return;
     const latest=memories[memories.length-1];if(Math.abs(latest.pose.yaw-pose.yaw)>.08||Math.abs(latest.pose.pitch-pose.pitch)>.08)saveObservation();
     motion={from:{...pose},to:target,start:performance.now(),duration:Math.min(3600,Math.max(950,length*500))};root.dataset.lastMove='moving';
-    say(`Clear path · moving ${length.toFixed(2)} m to your selected floor point.`);
-    if(matchMedia('(prefers-reduced-motion: reduce)').matches){pose={...pose,...target};finishMove();}else requestAnimationFrame(animate);
+    say(`Moving ${length.toFixed(2)} m to the selected Action target.`);
+    requestAnimationFrame(animate);
   }
   function animate(now){
     if(!motion)return;const t=Math.min(1,(now-motion.start)/motion.duration),e=t*t*(3-2*t);pose.x=motion.from.x+(motion.to.x-motion.from.x)*e;pose.z=motion.from.z+(motion.to.z-motion.from.z)*e;
     draw();updatePosition();if(t<1)requestAnimationFrame(animate);else finishMove();
   }
-  function finishMove(){motion=null;marker.visible=false;saveObservation();draw();updatePosition();root.dataset.lastMove='arrived';say(`Arrived. Observation ${serial} is now available on the Memory map.`);}
+  function finishMove(){motion=null;selectedTarget=null;marker.visible=false;saveObservation();draw();updatePosition();root.dataset.lastMove='arrived';say(`Arrived at the selected Action target. Observation ${serial} is now available on the Memory map.`);}
   function look(delta){init();if(!initialized||motion||mode==='recall')return;pose.yaw+=delta;draw();}
   function showMemory(id,announce=true){
     const memory=memories.find(m=>m.id===id);if(!memory)return;selectedMemory=id;
@@ -249,6 +269,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
     $$('[data-memory]').forEach(b=>{b.addEventListener('click',()=>showMemory(Number(b.dataset.memory)));if(b.tagName.toLowerCase()==='g')b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showMemory(Number(b.dataset.memory));}});});
   }
   function setMode(key){
+    if(key!=='action'&&selectionTimer){clearTimeout(selectionTimer);selectionTimer=null;selectedTarget=null;marker.visible=false;}
     mode=key;root.dataset.tool=mode;root.style.setProperty('--tool-color',info[key].color);
     $('#idea-kicker').textContent=key==='recall'?'Recall Tool':`${key[0].toUpperCase()+key.slice(1)} Tool`;
     $('#idea-title').textContent=info[key].title;$('#idea-description').textContent=info[key].description;$('#idea-action').textContent=info[key].button+' →';$('#tool-hint').textContent=info[key].hint;
@@ -264,7 +285,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   $('#look-left').addEventListener('click',()=>look(.22));$('#look-right').addEventListener('click',()=>look(-.22));$('#scene-reset').addEventListener('click',()=>{init();reset();});
   $('#idea-action').addEventListener('click',()=>{
     init();if(!initialized||motion)return;
-    if(mode==='action')move({x:-1.8,z:-4.7});
+    if(mode==='action')selectActionTarget({x:-1.8,z:-4.7});
     else if(mode==='recall'){const index=memories.findIndex(m=>m.id===selectedMemory);showMemory(memories[(index-1+memories.length)%memories.length].id);}
     else {const target=new THREE.Vector3(2.8,.79,-1.4);const delta=target.clone().sub(camera.position);pose.yaw=Math.atan2(-delta.x,-delta.z);pose.pitch=Math.atan2(delta.y,Math.hypot(delta.x,delta.z));draw();choose(.5,.5);}
   });
