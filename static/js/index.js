@@ -2,10 +2,17 @@
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const clock = t => `${Math.floor(Math.max(0, t) / 60)}:${String(Math.floor(Math.max(0, t) % 60)).padStart(2, '0')}`;
   const demos = JSON.parse($('#demo-data').textContent);
   const video = $('#demo-video'), player = $('#player'), progress = $('#seek');
+  const hero = $('#hero-video');
+  let heroVisible = true;
+  function loadHero() { const source = $('source', hero); if (!source.src) { source.src = source.dataset.src; hero.load(); } }
+  function resumeHero() {
+    if (!heroVisible || document.hidden || !video.paused || navigator.connection?.saveData) return;
+    loadHero();
+    hero.play().catch(() => {});
+  }
   let current = demos[0], pendingSeek = null, wantsPlay = false;
   let fullDownload = null, objectURL = null;
   const names = ['Indoor-to-Outdoor Journey', 'Building 22', 'Kitchen Fridge', 'Trash Bin', 'Table Tennis'];
@@ -187,8 +194,8 @@
   video.addEventListener('timeupdate', () => { if (pendingSeek === null) update(); });
   video.addEventListener('seeking', () => update());
   video.addEventListener('play', () => { setPlayState(); $('#hero-video').pause(); });
-  video.addEventListener('pause', setPlayState);
-  video.addEventListener('ended', () => { wantsPlay = false; setPlayState(); $('#demo-status').textContent = 'Experiment complete. Replay or choose another demonstration.'; });
+  video.addEventListener('pause', () => { setPlayState(); resumeHero(); });
+  video.addEventListener('ended', () => { wantsPlay = false; setPlayState(); resumeHero(); $('#demo-status').textContent = 'Experiment complete. Replay or choose another demonstration.'; });
   video.addEventListener('error', () => { if (video.getAttribute('src')) { $('#media-error').hidden = false; setPlayState(); } });
   progress.addEventListener('input', () => {
     const time = Number(progress.value); pendingSeek = time; load();
@@ -204,17 +211,13 @@
   document.addEventListener('fullscreenchange', () => $('#fullscreen').setAttribute('aria-label', document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'));
   selectDemo(current);
 
-  const hero = $('#hero-video');
-  let heroVisible = true;
-  function loadHero() { const source = $('source', hero); if (!source.src) { source.src = source.dataset.src; hero.load(); } }
-  if (!reduced.matches && !navigator.connection?.saveData) { loadHero(); hero.play().catch(() => {}); }
-  new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else if (!reduced.matches && !document.hidden && video.paused) { loadHero(); hero.play().catch(() => {}); } }, {threshold:.12}).observe(hero);
+  resumeHero();
+  new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; if (!heroVisible) hero.pause(); else resumeHero(); }, {threshold:.12}).observe(hero);
 
   $$('[data-tool-target]').forEach(link => link.addEventListener('click', () => {
     const tab = $(`#tab-${link.dataset.toolTarget}`);
     tab.click();
     tab.focus({preventScroll:true});
   }));
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); } else if (heroVisible && !reduced.matches && video.paused) hero.play().catch(() => {}); });
-  reduced.addEventListener('change', () => { if (reduced.matches) hero.pause(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { hero.pause(); pause(); } else resumeHero(); });
 })();
