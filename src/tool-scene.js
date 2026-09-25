@@ -6,9 +6,9 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
   const root=$('#idea-panel'); if(!root)return;
   const info={
-    action:{title:'Choose a Point. See the Robot Move.',description:'Click an open patch of floor in the camera view. The selected pixel becomes a destination; the robot moves only if the straight path is clear.',hint:'Click the floor to move · drag to look around',button:'Move Toward the Doorway',color:'#d78734'},
+    action:{title:'Choose a Point. See the Robot Move.',description:'Click an open patch of floor in the camera view. The selected pixel becomes a destination.',hint:'Click the floor to move · drag to look around',button:'Move Toward the Doorway',color:'#d78734'},
     depth:{title:'Point at a Surface. Get Its Distance.',description:'Click the floor, a tabletop, or a wall to measure the distance from the camera to that exact surface. Compare up to three points without moving the robot.',hint:'Click any surface to measure · drag to look around',button:'Measure the Table',color:'#8b63c7'},
-    recall:{title:'Choose a Past Point. Retrieve Its View.',description:'Select a numbered decision point on the bird’s-eye map. Recall returns the observation saved there. Your moves add new observations to the same trajectory.',hint:'Select a numbered point on the map',button:'Recall the Previous View',color:'#359574'}
+    recall:{title:'Choose a Past Point. Retrieve Its View.',description:"Select a numbered step on the Bird's Eye View (BEV) map. Recall returns the observation saved there. Your moves add new observations to the same trajectory.",hint:'Select a numbered step on the map',button:'Recall the Previous View',color:'#359574'}
   };
   let mode='action', initialized=false, scene, renderer, camera, floor, pose={...SEED[2]}, motion=null;
   let memories=[], serial=0, selectedMemory=0, queries=[], marker, resizeObserver;
@@ -16,7 +16,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   const meshes=[], queryMeshes=[];
   $('#idea-visual').innerHTML=`<div class="tool-toolbar"><span id="tool-view-label">Robot Camera</span><span class="scene-badge">Interactive Illustration</span></div>
     <div class="tool-stage" id="tool-stage"><canvas id="tool-canvas" tabindex="0" aria-label="Interactive robot camera. Drag or use arrow keys to look around. Press Enter to select the centre point."></canvas><div class="tool-pins" id="tool-pins" aria-hidden="true"></div><span class="tool-crosshair" aria-hidden="true"></span><div class="scene-loading" id="scene-loading">Loading the room…</div></div>
-    <div class="recall-workspace" id="recall-workspace" hidden><div class="bev-wrap"><svg id="tool-map" viewBox="0 0 328 376" role="group" aria-label="Bird’s-eye map of past decisions"></svg><p>Numbered dots are saved decisions.</p></div><figure class="recalled-view"><img id="recalled-image" alt=""><figcaption id="recalled-caption"></figcaption></figure></div>
+    <div class="recall-workspace" id="recall-workspace" hidden><div class="bev-wrap"><h4 class="recall-panel-title">Bird's Eye View (BEV) Map</h4><svg id="tool-map" viewBox="0 0 328 376" role="group" aria-label="Bird's Eye View (BEV) map of saved steps"></svg></div><figure class="recalled-view"><h4 class="recall-panel-title">Recalled Observation</h4><div class="recalled-image-frame"><img id="recalled-image" alt=""><span class="recalled-step-badge" id="recalled-step-badge">Step 1</span></div></figure></div>
     <div class="scene-controls" id="scene-controls"><button type="button" id="look-left" aria-label="Look left">↶ <span>Look left</span></button><span id="scene-position">Shared room · metres</span><button type="button" id="look-right" aria-label="Look right"><span>Look right</span> ↷</button></div>
     <div class="memory-decisions" id="memory-decisions" aria-label="Saved observations" hidden></div><p class="tool-hint" id="tool-hint"></p>`;
   const canvas=$('#tool-canvas'), stage=$('#tool-stage');
@@ -253,19 +253,19 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   function look(delta){init();if(!initialized||motion||mode==='recall')return;pose.yaw+=delta;draw();}
   function showMemory(id,announce=true){
     const memory=memories.find(m=>m.id===id);if(!memory)return;selectedMemory=id;
-    $('#recalled-image').src=memory.image;$('#recalled-image').alt=`Saved camera observation at decision ${id}`;
-    $('#recalled-caption').textContent=`Observation ${id} · saved at this decision point`;
-    root.dataset.recalled=String(id);renderMap();if(announce)say(`Recalled observation ${id} from memory. The robot stays at its current position.`);
+    $('#recalled-image').src=memory.image;$('#recalled-image').alt=`Camera observation saved at Step ${id}`;
+    $('#recalled-step-badge').textContent=`Step ${id}`;
+    root.dataset.recalled=String(id);renderMap();if(announce)say(`Recalled the observation from Step ${id}. The robot stays at its current position.`);
   }
   function renderMap(){
     if(!initialized)return;
-    const obstacles=OBSTACLES.map(o=>{const p=mapPoint({x:o.x-o.w/2,z:o.z-o.d/2});return `<rect x="${p.x}" y="${p.y}" width="${o.w*24}" height="${o.d*24}" rx="3" class="map-furniture"/><text x="${p.x+o.w*12}" y="${p.y+o.d*12+3}" class="map-label">${o.name}</text>`;}).join('');
+    const obstacles=OBSTACLES.map(o=>{const p=mapPoint({x:o.x-o.w/2,z:o.z-o.d/2});return `<rect x="${p.x}" y="${p.y}" width="${o.w*24}" height="${o.d*24}" rx="3" class="map-furniture"/>`;}).join('');
     const points=memories.map(m=>{const p=mapPoint(m.pose);return `${p.x},${p.y}`;}).join(' ');
     const current=mapPoint(pose);
-    $('#tool-map').innerHTML=`<rect x="20" y="20" width="288" height="336" rx="4" class="map-room"/><path d="M152 20h46" class="map-door"/><text x="175" y="13" class="map-label">Door</text>${obstacles}<polyline points="${points}" class="map-trail"/>`+
-      memories.map(m=>{const p=mapPoint(m.pose);return `<g role="button" tabindex="0" aria-label="Recall observation ${m.id}" aria-pressed="${m.id===selectedMemory}" data-memory="${m.id}" class="map-decision"><circle cx="${p.x}" cy="${p.y}" r="12"/><text x="${p.x}" y="${p.y+4}">${m.id}</text></g>`;}).join('')+
+    $('#tool-map').innerHTML=`<rect x="20" y="20" width="288" height="336" rx="4" class="map-room"/><path d="M152 20h46" class="map-door"/>${obstacles}<polyline points="${points}" class="map-trail"/>`+
+      memories.map(m=>{const p=mapPoint(m.pose);return `<g role="button" tabindex="0" aria-label="Recall Step ${m.id}" aria-pressed="${m.id===selectedMemory}" data-memory="${m.id}" class="map-decision"><circle cx="${p.x}" cy="${p.y}" r="12"/><text x="${p.x}" y="${p.y+4}">${m.id}</text></g>`;}).join('')+
       `<path d="M0 -18L7 -6L0 -9L-7 -6Z" transform="translate(${current.x} ${current.y}) rotate(${-pose.yaw*180/Math.PI})" class="map-current"/><text x="24" y="371" class="map-legend">▲ Current robot · dots return saved views</text>`;
-    $('#memory-decisions').innerHTML=memories.map(m=>`<button type="button" data-memory="${m.id}" aria-pressed="${m.id===selectedMemory}">View ${m.id}</button>`).join('');
+    $('#memory-decisions').innerHTML=memories.map(m=>`<button type="button" data-memory="${m.id}" aria-pressed="${m.id===selectedMemory}">Step ${m.id}</button>`).join('');
     $$('[data-memory]').forEach(b=>{b.addEventListener('click',()=>showMemory(Number(b.dataset.memory)));if(b.tagName.toLowerCase()==='g')b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showMemory(Number(b.dataset.memory));}});});
   }
   function setMode(key){
@@ -273,7 +273,7 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
     mode=key;root.dataset.tool=mode;root.style.setProperty('--tool-color',info[key].color);
     $('#idea-kicker').textContent=key==='recall'?'Recall Tool':`${key[0].toUpperCase()+key.slice(1)} Tool`;
     $('#idea-title').textContent=info[key].title;$('#idea-description').textContent=info[key].description;$('#idea-action').textContent=info[key].button+' →';$('#tool-hint').textContent=info[key].hint;
-    stage.hidden=key==='recall';$('#recall-workspace').hidden=key!=='recall';$('#scene-controls').hidden=key==='recall';$('#memory-decisions').hidden=key!=='recall';$('#tool-view-label').textContent=key==='recall'?'Trajectory → Saved Observation':'Robot Camera';
+    stage.hidden=key==='recall';$('#recall-workspace').hidden=key!=='recall';$('#scene-controls').hidden=key==='recall';$('#memory-decisions').hidden=key!=='recall';$('#tool-view-label').textContent=key==='recall'?'Recall Tool':'Robot Camera';
     root.setAttribute('aria-labelledby',`tab-${key}`);$$('[data-idea]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.idea===key));b.tabIndex=b.dataset.idea===key?0:-1;});
     if(initialized){queryMeshes.forEach(m=>m.visible=key==='depth');if(key==='recall'){renderMap();showMemory(selectedMemory||memories[0].id,false);}else resize();}
     say(key==='recall'?'Choose a decision on the map. Three example observations are included; your moves add more.':info[key].hint+'.');
