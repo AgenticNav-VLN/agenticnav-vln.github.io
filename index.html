@@ -3,7 +3,7 @@
 <title>AgenticNav — Navigation through action, depth &amp; memory</title>
 <meta name="description" content="Zero-shot vision-and-language navigation as a tool-calling harness. Explore five real-world demonstrations and an interactive explanation of AgenticNav.">
 <meta name="theme-color" content="#14345b"><link rel="canonical" href="https://agenticnav-vln.github.io/">
-<link rel="stylesheet" href="static/css/index.css?v=20260924-gemini-3"><link rel="stylesheet" href="static/css/tool-scene.css?v=20260925-tools-3"><script defer src="static/js/index.js?v=20260925-hero-1"></script><script defer src="static/js/tool-scene.js?v=20260925-room-3"></script><script defer src="static/js/results.js?v=20260924-gemini-3"></script></head>
+<link rel="stylesheet" href="static/css/index.css?v=20260925-loading-1"><link rel="stylesheet" href="static/css/tool-scene.css?v=20260925-tools-3"><script defer src="static/js/index.js?v=20260925-loading-1"></script><script defer src="static/js/tool-scene.js?v=20260925-room-3"></script><script defer src="static/js/results.js?v=20260924-gemini-3"></script></head>
 <body><a class="skip-link" href="#demos">Skip to demonstrations</a>
 <header class="site-header"><a class="wordmark" href="#top">AgenticNav<span>.</span></a><nav aria-label="Main navigation"><a href="#demos">Videos</a><a href="#method">Method</a><a href="#how-it-works">How It Works</a><a href="#results">Results</a></nav></header>
 <main><section class="hero" id="top"><video id="hero-video" autoplay muted loop playsinline preload="none" poster="static/images/web/hero.jpg" aria-label="Fast-forwarded real-world navigation highlights"><source data-src="static/videos/web/hero.mp4" type="video/mp4"></video><div class="hero-shade"></div>
@@ -11,7 +11,7 @@
 <div class="hero-actions"><a class="button button-white" href="#demos">Watch Videos <span aria-hidden="true">↘</span></a><a class="button button-glass" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the Paper ↗</a><a class="button button-glass" href="#method">View Method</a></div></div></section>
 <section class="demos-section container" id="demos"><div class="section-heading"><div><p class="eyebrow">Videos</p><h2>Real-World Demonstrations</h2></div><p>Click an instruction phrase to jump to that moment.</p></div>
 <div class="demo-layout"><div class="demo-picker" role="group" aria-label="Choose a demonstration"></div><article class="demo-stage" aria-labelledby="demo-title"><div class="demo-meta"><span id="demo-category"></span></div><h3 id="demo-title"></h3><div class="instruction-label"><span>Instruction</span><span>Click a Phrase to Seek <span aria-hidden="true">↗</span></span></div><div id="instruction" class="instruction" aria-label="Interactive navigation instruction"></div>
-<div class="player" id="player"><video id="demo-video" playsinline preload="none" aria-label="Selected navigation demonstration"></video><svg class="tracking-overlay" viewBox="0 0 1920 1080" aria-hidden="true"><rect id="tracking-box" hidden rx="12" fill="none" stroke="#3975e9" stroke-width="8"/></svg><div class="recall-overlay" hidden><p id="recall-title"></p><img src="static/images/web/remembered-sign.jpg" alt="Previously observed sign recalled by the navigation model"></div><button class="big-play" id="big-play" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><span class="video-badge">10×</span><div class="player-controls"><button id="play-toggle" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" step="0.01" value="0" aria-label="Video progress"><span id="duration">0:00</span><button id="fullscreen" aria-label="Enter fullscreen"><span aria-hidden="true">⛶</span></button></div></div>
+<div class="player" id="player"><video id="demo-video" playsinline preload="none" aria-label="Selected navigation demonstration"></video><svg class="tracking-overlay" viewBox="0 0 1920 1080" aria-hidden="true"><rect id="tracking-box" hidden rx="12" fill="none" stroke="#3975e9" stroke-width="8"/></svg><div class="recall-overlay" hidden><p id="recall-title"></p><img src="static/images/web/remembered-sign.jpg" alt="Previously observed sign recalled by the navigation model"></div><button class="big-play" id="big-play" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><div class="video-loading" id="video-loading" role="status" aria-live="polite" hidden><div class="video-loading-card"><span class="video-loading-spinner" aria-hidden="true"></span><strong>Loading Video <span id="video-loading-percent">0%</span></strong><span class="video-loading-track" aria-hidden="true"><span id="video-loading-fill"></span></span></div></div><span class="video-badge">10×</span><div class="player-controls"><button id="play-toggle" aria-label="Play demonstration"><span aria-hidden="true">▶</span></button><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" step="0.01" value="0" aria-label="Video progress"><span id="duration">0:00</span><button id="fullscreen" aria-label="Enter fullscreen"><span aria-hidden="true">⛶</span></button></div></div>
 <div class="demo-footer"><p id="demo-status" role="status">Select a phrase or press play.</p><a id="video-download" href="static/videos/web/long-range.mp4" download>Open Video <span aria-hidden="true">↗</span></a></div><p class="media-error" id="media-error" hidden>Video could not load. <button id="retry-video">Try again</button> or open the video directly.</p></article></div><noscript><p>Enable JavaScript to use the interactive player, or open the demonstrations directly:</p><p><a href="static/videos/web/long-range.mp4">Long-Range Navigation</a> · <a href="static/videos/web/building-22.mp4">Building 22</a> · <a href="static/videos/web/kitchen.mp4">Kitchen</a> · <a href="static/videos/web/trash-bin.mp4">Trash Bin</a> · <a href="static/videos/web/table-tennis.mp4">Table Tennis</a></p></noscript></section>
 <section class="method-section container" id="method"><div class="section-heading"><div><p class="eyebrow">Method</p><h2>AgenticNav Architecture</h2></div><p>The model can query depth, select an action target, or recall a past observation. Select a tool in the figure to open its interactive example.</p></div>
 <figure class="architecture-figure"><div class="architecture-scroll"><div class="architecture-image"><img src="static/images/web/paper-method.png" width="1222" height="715" alt="AgenticNav architecture: a vision-language model receives observations and calls the Depth, Action, and Recall tools" loading="lazy"><a class="architecture-hotspot architecture-depth" href="#tab-depth" data-tool-target="depth" aria-label="Open the interactive Depth tool example"><span aria-hidden="true">↗</span></a><a class="architecture-hotspot architecture-action" href="#tab-action" data-tool-target="action" aria-label="Open the interactive Action tool example"><span aria-hidden="true">↗</span></a><a class="architecture-hotspot architecture-recall" href="#tab-recall" data-tool-target="recall" aria-label="Open the interactive Recall tool example"><span aria-hidden="true">↗</span></a></div></div></figure></section>
@@ -32,6 +32,7 @@
     "title": "Long-Range Indoor-to-Outdoor Navigation",
     "category": "Long-Horizon Navigation",
     "src": "static/videos/web/long-range.mp4",
+    "bytes": 20563057,
     "poster": "static/images/web/long-range.jpg",
     "duration": 74.0,
     "originalDuration": 740.0,
@@ -118,6 +119,7 @@
     "title": "Read a Sign. Remember the Way.",
     "category": "Visual Memory",
     "src": "static/videos/web/building-22.mp4",
+    "bytes": 10448755,
     "poster": "static/images/web/building-22.jpg",
     "duration": 37.25,
     "originalDuration": 372.5,
@@ -234,6 +236,7 @@
     "title": "Through the Corridor to the Kitchen",
     "category": "Multi-Step Instruction",
     "src": "static/videos/web/kitchen.mp4",
+    "bytes": 7802886,
     "poster": "static/images/web/kitchen.jpg",
     "duration": 34.269999999999996,
     "originalDuration": 342.7,
@@ -275,6 +278,7 @@
     "title": "Find the Trash Bin",
     "category": "Object Navigation",
     "src": "static/videos/web/trash-bin.mp4",
+    "bytes": 1551775,
     "poster": "static/images/web/trash-bin.jpg",
     "duration": 7.3333333,
     "originalDuration": 73.333333,
@@ -421,6 +425,7 @@
     "title": "Find the Table Tennis Table",
     "category": "Object Navigation",
     "src": "static/videos/web/table-tennis.mp4",
+    "bytes": 2793791,
     "poster": "static/images/web/table-tennis.jpg",
     "duration": 11.3533333,
     "originalDuration": 113.533333,

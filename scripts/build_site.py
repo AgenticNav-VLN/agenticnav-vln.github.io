@@ -32,6 +32,8 @@ def build():
     # A classic script is an allowed transport for a user-requested local MP4.
     for demo in json.loads(data):
         media=SITE/demo['src']
+        if media.stat().st_size != demo['bytes']:
+            raise ValueError(f'Update byte length for {media.name} in demos.json')
         raw=media.read_bytes(); size=1572864
         chunks=[raw[i:i+size] for i in range(0,len(raw),size)]
         def write_transport(path,payload):
