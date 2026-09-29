@@ -13,15 +13,6 @@
     simulation: {
       metrics: ['sr', 'spl'],
       groups: [
-        {id: 'supervised', label: 'Supervised Learning', rows: [
-          row('CMA', 37, 32.17), row('StreamVLN*', 47, 41.31),
-          row('RecBERT', 48, 43.22), row('NaVILA*', 49, 44.22),
-          row('ETPNav', 58, 52.19), row('BEVBert', 60, 53.41),
-          row('AwareVLN*', 63, 56.34), row('LightNav-0*', 67, 62.71)
-        ]},
-        {id: 'zero-shot', label: 'Zero-Shot Baselines', rows: [
-          row('Random', 2, 1.50), row('LXMERT', 2, 1.87)
-        ]},
         {id: 'gpt', label: 'GPT-5.5 Backbone', rows: [
           row('SmartWay*', 44, 35.04), row('AgenticNav', 55, 48.41, true)
         ]},
@@ -157,7 +148,11 @@
         const second = svg('tspan', {x: x[index], dy: 18}); second.textContent = model.replace('Gemini ', '');
         label.append(first, second); plot.append(label);
       });
-      geminiScaling.methods.forEach(method => {
+      // SVG paints later children above earlier ones. Keep the yellow method
+      // last in the plot while leaving it first in the legend.
+      const drawOrder = geminiScaling.methods.filter(method => method.name !== 'AgenticNav')
+        .concat(geminiScaling.methods.filter(method => method.name === 'AgenticNav'));
+      drawOrder.forEach(method => {
         const group = svg('g', {'data-series': method.name});
         const points = method[metric.key].map((value, index) => [x[index], y(value)]);
         group.append(svg('polyline', {
@@ -230,8 +225,8 @@
     controls.append(buttons);
     if (data.groups || data.scenes) {
       const select = document.createElement('select'); select.className = 'chart-filter';
-      select.setAttribute('aria-label', data.groups ? 'Filter Methods by Group' : 'Choose Real-World Scene');
-      const options = data.groups ? [{id:'all', label:'All Method Groups'}, ...data.groups] : data.scenes;
+      select.setAttribute('aria-label', data.groups ? 'Filter Methods by Backbone' : 'Choose Real-World Scene');
+      const options = data.groups ? [{id:'all', label:'All Backbones'}, ...data.groups] : data.scenes;
       options.forEach(option => { const node = document.createElement('option'); node.value = option.id; node.textContent = option.label; select.append(node); });
       select.addEventListener('change', () => { if (data.groups) filter = select.value; else scene = select.value; render(); });
       controls.append(select);

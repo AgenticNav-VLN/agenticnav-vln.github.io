@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
-import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
+import {ROOM,OBSTACLES,SEED,safePath,mapPoint,layoutStepMarkers} from './scene-geometry.mjs';
 
 (() => {
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -240,7 +240,6 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   }
   function startMove(target,length){
     if(!selectedTarget||motion||mode!=='action')return;
-    const latest=memories[memories.length-1];if(Math.abs(latest.pose.yaw-pose.yaw)>.08||Math.abs(latest.pose.pitch-pose.pitch)>.08)saveObservation();
     motion={from:{...pose},to:target,start:performance.now(),duration:Math.min(3600,Math.max(950,length*500))};root.dataset.lastMove='moving';
     say(`Moving ${length.toFixed(2)} m to the selected Action target.`);
     requestAnimationFrame(animate);
@@ -260,11 +259,16 @@ import {ROOM,OBSTACLES,SEED,safePath,mapPoint} from './scene-geometry.mjs';
   function renderMap(){
     if(!initialized)return;
     const obstacles=OBSTACLES.map(o=>{const p=mapPoint({x:o.x-o.w/2,z:o.z-o.d/2});return `<rect x="${p.x}" y="${p.y}" width="${o.w*24}" height="${o.d*24}" rx="3" class="map-furniture"/>`;}).join('');
-    const points=memories.map(m=>{const p=mapPoint(m.pose);return `${p.x},${p.y}`;}).join(' ');
+    const markers=layoutStepMarkers(memories.map(m=>m.pose));
+    const points=markers.map(marker=>`${marker.anchor.x},${marker.anchor.y}`).join(' ');
     const current=mapPoint(pose);
+    const links=markers.map(({anchor,display})=>Math.hypot(display.x-anchor.x,display.y-anchor.y)>1?
+      `<line x1="${anchor.x}" y1="${anchor.y}" x2="${display.x}" y2="${display.y}" class="map-step-link"/>`:'').join('');
+    const steps=memories.map((m,index)=>{const {display}=markers[index];return `<g role="button" tabindex="0" aria-label="Recall Step ${m.id}" aria-pressed="${m.id===selectedMemory}" data-memory="${m.id}" class="map-decision"><circle cx="${display.x}" cy="${display.y}" r="12"/><text x="${display.x}" y="${display.y+4}">${m.id}</text></g>`;}).join('');
     $('#tool-map').innerHTML=`<rect x="20" y="20" width="288" height="336" rx="4" class="map-room"/><path d="M152 20h46" class="map-door"/>${obstacles}<polyline points="${points}" class="map-trail"/>`+
-      memories.map(m=>{const p=mapPoint(m.pose);return `<g role="button" tabindex="0" aria-label="Recall Step ${m.id}" aria-pressed="${m.id===selectedMemory}" data-memory="${m.id}" class="map-decision"><circle cx="${p.x}" cy="${p.y}" r="12"/><text x="${p.x}" y="${p.y+4}">${m.id}</text></g>`;}).join('')+
-      `<path d="M0 -18L7 -6L0 -9L-7 -6Z" transform="translate(${current.x} ${current.y}) rotate(${-pose.yaw*180/Math.PI})" class="map-current"/><text x="24" y="371" class="map-legend">▲ Current robot · dots return saved views</text>`;
+      `<path d="M0 -18L7 -6L0 -9L-7 -6Z" transform="translate(${current.x} ${current.y}) rotate(${-pose.yaw*180/Math.PI})" class="map-current"/>`+
+      links+steps+
+      `<text x="24" y="371" class="map-legend">▲ Current robot · dots return saved views</text>`;
     $('#memory-decisions').innerHTML=memories.map(m=>`<button type="button" data-memory="${m.id}" aria-pressed="${m.id===selectedMemory}">Step ${m.id}</button>`).join('');
     $$('[data-memory]').forEach(b=>{b.addEventListener('click',()=>showMemory(Number(b.dataset.memory)));if(b.tagName.toLowerCase()==='g')b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showMemory(Number(b.dataset.memory));}});});
   }

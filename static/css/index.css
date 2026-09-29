@@ -145,7 +145,6 @@ img,video{display:block;max-width:100%}
 .research-results strong{font-size:65px;line-height:1;letter-spacing:-3px}
 .research-results strong span{font-size:30px;letter-spacing:0}
 .research-results>div>p{margin:12px 0;font-size:14px;color:#d3e1ef}
-.research-results .result-context{grid-column:1/-1;font-size:12px;margin:7px 0 17px;max-width:420px}
 .research-results details{grid-column:1/-1;border-top:1px solid #ffffff30;padding-top:15px}
 .research-results details p{font-size:15px;color:#cad9e8;line-height:1.7}
 .results-gallery{padding:78px 0 100px;background:#f2f6fb}

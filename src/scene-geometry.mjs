@@ -21,3 +21,22 @@ export function safePath(a,b) {
   return true;
 }
 export function mapPoint(p) { return {x:20+(p.x+6)*24,y:20+(p.z+7)*24}; }
+// Keep numbered observations legible when a route revisits the same area.
+// The path still uses the true position; only overlapping labels move.
+export function layoutStepMarkers(poses) {
+  const placed = [];
+  const offsets = [];
+  for (let x = -9; x <= 9; x++) for (let y = -11; y <= 11; y++) offsets.push({x:x*28,y:y*28});
+  offsets.sort((a,b) => Math.hypot(a.x,a.y)-Math.hypot(b.x,b.y) || a.y-b.y || a.x-b.x);
+  for (const pose of poses) {
+    const anchor = mapPoint(pose);
+    const offset = offsets.find(offset => {
+      const x = anchor.x+offset.x, y = anchor.y+offset.y;
+      return x >= 33 && x <= 295 && y >= 33 && y <= 343 &&
+        placed.every(marker => Math.hypot(x-marker.display.x,y-marker.display.y) >= 27);
+    });
+    const display = offset ? {x:anchor.x+offset.x,y:anchor.y+offset.y} : anchor;
+    placed.push({anchor, display});
+  }
+  return placed;
+}

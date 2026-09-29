@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isFree,safePath,mapPoint,SEED} from '../src/scene-geometry.mjs';
+import {isFree,safePath,mapPoint,layoutStepMarkers,SEED} from '../src/scene-geometry.mjs';
 test('Clear aisle accepts travel; crossing a table is rejected even with a free endpoint',()=>{
   assert.equal(safePath({x:-1.8,z:3},{x:-1.8,z:-5}),true);
   assert.equal(isFree(1.9,-4),true);
@@ -15,4 +15,12 @@ test('Seed observations form a traversable trajectory in the displayed BEV',()=>
   SEED.forEach((p,i)=>{assert.ok(isFree(p.x,p.z));if(i)assert.ok(safePath(SEED[i-1],p));});
   assert.deepEqual(mapPoint({x:-6,z:-7}),{x:20,y:20});
   assert.deepEqual(mapPoint({x:6,z:7}),{x:308,y:356});
+});
+test('Nearby recalled steps keep distinct, numbered map markers',()=>{
+  const markers=layoutStepMarkers([...SEED, ...Array.from({length:21},()=>({...SEED[2]}))]);
+  assert.equal(markers.length,24);
+  assert.deepEqual(markers[2].anchor,markers[3].anchor);
+  for(let i=0;i<markers.length;i++)for(let j=0;j<i;j++){
+    assert.ok(Math.hypot(markers[i].display.x-markers[j].display.x,markers[i].display.y-markers[j].display.y)>=27);
+  }
 });
