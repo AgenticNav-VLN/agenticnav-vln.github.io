@@ -23,6 +23,7 @@ def check():
     assert [d['id'] for d in demos]==['long-range','building-22','kitchen','trash-bin','table-tennis']
     for root in (SITE,ANON):
         page=(root/'index.html').read_text(encoding='utf-8-sig'); doc=Document(); doc.feed(page)
+        assert not re.search(r'arxiv',page,re.I), f'ArXiv reference in {root.name}/index.html'
         assert len(doc.ids)==len(set(doc.ids)), 'Duplicate HTML id'
         refs=doc.refs+[d[k] for d in demos for k in ('src','poster')]
         for ref in refs:

@@ -49,7 +49,6 @@ def build():
     anonymous_page=public_page
     replacements=(
         ('<link rel="canonical" href="https://agenticnav-vln.github.io/">','<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">'),
-        ('<a class="button button-glass" href="https://arxiv.org/abs/2606.10577" target="_blank" rel="noopener">Read the Paper ↗</a>',''),
         ('Vision-and-language navigation · 2026','Anonymous research project · 2026'),
     )
     for old,new in replacements:

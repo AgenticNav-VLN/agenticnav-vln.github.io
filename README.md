@@ -3,7 +3,6 @@
 A static, dependency-free research website for AgenticNav.
 
 - Public website: https://agenticnav-vln.github.io/
-- Paper: https://arxiv.org/abs/2606.10577
 - Deploy: GitHub Pages, main branch, repository root.
 
 ## Content
