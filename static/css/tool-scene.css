@@ -12,6 +12,8 @@
 .depth-pin{position:absolute;transform:translate(-50%,-120%);padding:5px 9px;border-radius:5px;background:#7049aa;color:#fff;white-space:nowrap;font-size:15px;box-shadow:0 2px 10px #26124844}
 .depth-pin:after{content:'';position:absolute;left:50%;bottom:-8px;width:8px;height:8px;border:2px solid white;border-radius:50%;background:#8b63c7;translate:-50% 0}
 .scene-loading{position:absolute;inset:0;display:grid;place-content:center;padding:28px;text-align:center;background:#e7edf1;color:#173d72;font-size:16px}
+.scene-feedback{position:absolute;left:14px;right:14px;bottom:14px;padding:12px 16px;border:1px solid #dbb29e;border-left:4px solid #b64d2e;border-radius:7px;background:#fff9f3ed;color:#85371f;box-shadow:0 4px 16px #30251c22;white-space:pre-line;line-height:1.4;font-size:14px;pointer-events:none}
+.idea-panel[data-feedback=failed] .idea-result{color:#a34025!important;white-space:pre-line}
 .scene-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;padding:10px 13px;border-bottom:1px solid #e6ecf1}
 .scene-controls button,.memory-decisions button{font:inherit;font-size:13px;border:1px solid #dce4eb;background:#f8fafc;border-radius:5px;padding:7px 10px;color:#304b68;cursor:pointer;min-height:36px}
 .scene-controls button:hover,.memory-decisions button:hover{border-color:var(--tool-color);color:var(--tool-color)}

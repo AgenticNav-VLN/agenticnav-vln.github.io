@@ -57,7 +57,7 @@ def build():
         anonymous_page=anonymous_page.replace(old,new)
     (SITE/'index.html').write_text(public_page,encoding='utf-8')
     (ANON/'index.html').write_text(anonymous_page,encoding='utf-8')
-    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json','static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
+    for rel in ['static/css/index.css','static/js/index.js','static/js/demos.json','static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt','static/js/TEXTURE-LICENSE.txt']:
         (ANON/rel).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(SITE/rel,ANON/rel)
     for rel in ['static/images/web','static/videos/web']: shutil.copytree(SITE/rel,ANON/rel,dirs_exist_ok=True)
     print('Built public and anonymous sites with matching research content.')

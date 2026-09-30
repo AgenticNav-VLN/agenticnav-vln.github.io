@@ -1,0 +1,17 @@
+Office demonstration material maps are offline derivatives of Poly Haven CC0 assets.
+License: https://polyhaven.com/license
+CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
+
+Laminate Floor 02 — Charlotte Baglioni and Dario Barresi
+https://polyhaven.com/a/laminate_floor_02
+Wood Table 001 — Dimitrios Savva and Rico Cilliers
+https://polyhaven.com/a/wood_table_001
+White Plaster 02 — Rob Tuytel
+https://polyhaven.com/a/white_plaster_02
+Poly Wool Herringbone — colormass and Rico Cilliers
+https://polyhaven.com/a/poly_wool_herringbone
+
+Maps are resized and JPEG-compressed. Wood is toned to oak, plaster to painted
+off-white, fabric to neutral upholstery, and floor roughness to a satin finish.
+Original maps are not fetched
+by the website. Prepared maps are embedded in the bundled classic script.

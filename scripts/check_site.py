@@ -41,7 +41,7 @@ def check():
         subprocess.run(['node','--check',str(root/'static/js/index.js')],check=True)
         subprocess.run(['node','--check',str(root/'static/js/results.js')],check=True)
         subprocess.run(['node','--check',str(root/'static/js/tool-scene.js')],check=True)
-        for asset in ['static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt']:
+        for asset in ['static/js/results.js','static/js/tool-scene.js','static/css/tool-scene.css','static/js/THREE-LICENSE.txt','static/js/TEXTURE-LICENSE.txt']:
             assert (SITE/asset).read_bytes()==(ANON/asset).read_bytes(),asset
         for p in (root/'static/images/web').glob('*'):
             with Image.open(p) as im: assert not im.getexif(),p

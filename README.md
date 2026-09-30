@@ -51,8 +51,9 @@ classic-script transport (`*.media.js` manifests and `*.media-N.js` chunks), loa
 after an instruction seek requires it. Each chunk carries at most 1.5 MiB of MP4 data;
 at most three load together, with progress feedback, cancellation, and a timeout.
 This stays within the site's own resources and does not require relaxed host permissions.
-The background pauses offscreen; reduced-motion and data-saving preferences disable its
-automatic playback. Keyboard users can operate the player, instructions, tool tabs,
+The background pauses offscreen; data-saving preferences disable its automatic playback.
+Reduced-motion preferences retain background playback and visible navigation as requested.
+Keyboard users can operate the player, instructions, tool tabs,
 and architecture figure links.
 
 The previous site used the Academic Project Page Template. The current design and
@@ -60,16 +61,31 @@ interaction implementation are custom, with a video hero inspired by the supplie
 
 ## Interactive tool room
 
-The three tool tabs share a procedural indoor scene rendered locally with Three.js.
-Action selects a visible floor point and checks the entire route with robot clearance.
+The three tool tabs share a furnished office rendered locally with Three.js. Rounded
+upholstery, workstations, swivel chairs, plants and wood surfaces replace the old room.
+Photographic CC0 material maps, their normal and roughness detail, are embedded in the
+classic script; see `static/js/TEXTURE-LICENSE.txt` for sources and processing.
+Action selects a visible floor point and immediately plans a route around furniture,
+checking the complete route against the robot's 0.24-metre radius. A fast visibility
+graph has a fine-grid fallback; neither permits diagonal corner cutting. Floor clicks
+with insufficient clearance can move up to 0.65 metres to a nearby safe destination.
+Non-floor, occupied, outside and disconnected targets report a specific safety failure.
+Movement takes at least 650 ms and about 220 ms per metre, with visible acceleration,
+turning and deceleration. A new valid click replans from the current position.
 Depth returns the camera-to-surface ray distance in metres, using the nearest visible
 surface. Recall selects a saved decision on the BEV and shows its captured camera image.
 Three sample decisions are seeded; new moves add observations (the latest 24 are kept).
+The map retains the actual routed segments, including interrupted travel. Switching
+tools stops navigation and saves the reached position. Reset cancels queued animation.
 This is a clearly labelled illustration, not a navigation-model execution or experiment.
 
-Edit `src/tool-scene.js`, `src/scene-geometry.mjs`, and `static/css/tool-scene.css`.
+Edit `src/tool-scene.js`, `src/office-room.js`, `src/scene-geometry.mjs`, and
+`static/css/tool-scene.css`. Only `scripts/prepare_scene_textures.py` needs the Internet
+when refreshing material assets; normal builds work entirely offline.
 Run `npm ci`, `npm run test:scene`, `npm run build:scene`, then the Python site build.
 The bundled classic script and local license are mirrored to the anonymous site; no
 external JavaScript, model files, texture requests, or cross-origin module imports are used.
-Mouse, touch, arrow keys and Enter work in the camera view. Reduced motion skips travel
-animation. The room renders on interaction instead of running a permanent render loop.
+Mouse, touch, arrow keys and Enter work in the camera view. Reduced motion retains the
+requested travel animation. Shadows are cached; the office renders only on interaction
+or active navigation instead of running a permanent render loop. Embedded material maps
+finish loading before sample observations are captured, including in opaque-origin hosts.

@@ -2,7 +2,7 @@
   "name": "agenticnav-project-page",
   "private": true,
   "scripts": {
-    "build:scene": "esbuild src/tool-scene.js --bundle --minify --format=iife --target=es2020 --outfile=static/js/tool-scene.js --legal-comments=eof",
+    "build:scene": "esbuild src/tool-scene.js --bundle --minify --format=iife --target=es2020 --loader:.jpg=dataurl --outfile=static/js/tool-scene.js --legal-comments=eof",
     "test:scene": "node --test scripts/scene.test.mjs"
   },
   "dependencies": { "three": "0.186.0" },
