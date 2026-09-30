@@ -49,7 +49,7 @@ def build():
     anonymous_page=public_page
     replacements=(
         ('<link rel="canonical" href="https://agenticnav-vln.github.io/">','<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">'),
-        ('Vision-and-language navigation · 2026','Anonymous research project · 2026'),
+        ('<p>Vision-and-language navigation · 2026</p>',''),
     )
     for old,new in replacements:
         if old not in anonymous_page:
